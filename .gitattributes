@@ -1,0 +1,5 @@
+# keep LF in the repo so Windows and the Linux server see the same files
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
