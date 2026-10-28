@@ -1,13 +1,20 @@
 import express from 'express';
 import helmet from 'helmet';
 import { query } from './db.js';
+import { authRouter } from './auth/routes.js';
+import { jsonOnlyWrites, loadUser } from './auth/middleware.js';
 
 /* builds the Express app without listening, so tests can use it directly */
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
+  app.set('trust proxy', 'loopback');   /* behind a local reverse proxy (deploy), req.ip is the real client IP */
   app.use(helmet());
+  app.use('/api', jsonOnlyWrites);
   app.use(express.json({ limit: '1mb' }));   /* member photos are ~40 KB data URLs; backups go through a separate route later */
+  app.use('/api', loadUser);
+
+  app.use('/api/auth', authRouter);
 
   /* liveness and database check */
   app.get('/api/health', async (req, res) => {

@@ -11,7 +11,7 @@ parol hash'i hech qachon brauzerga bormaydi.
 | 1 | Frontend'ni Vite loyihasiga bo'lish (localStorage rejimida) | `npm run dev` artifactdagidek ishlaydi | tayyor |
 | 2 | `GYM` core uchun Vitest testlari | Testlar o'tadi | tayyor |
 | 3 | Express skeleti, PostgreSQL sxema, migratsiyalar | `GET /api/health`, jadvallar yaratiladi | tayyor |
-| 4 | Serverda auth (sessiya cookie, bloklash, rollar) | Hash brauzerga bormaydi | — |
+| 4 | Serverda auth (sessiya cookie, bloklash, rollar) | Hash brauzerga bormaydi | tayyor |
 | 5 | API: biznes qoidalar serverga | Barcha amallar API orqali | — |
 | 6 | Frontend'ni API'ga ulash | Ikki brauzer bir vaqtda, ma'lumot yo'qolmaydi | — |
 | 7 | Artifact zaxira JSON'ini PostgreSQL'ga import | Eski ma'lumot yangi tizimda | — |
