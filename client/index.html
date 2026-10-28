@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gym Manager Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600;700&display=swap">
+</head>
+<body>
+<div id="boot" class="boot"><div style="text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center"><span id="boot-msg">Opening Gym Manager Pro</span><div id="boot-actions" hidden class="row-actions" style="justify-content:center"><button id="boot-retry" class="btn" type="button">Try again</button><button id="boot-local" class="btn btn-primary" type="button">Work in this browser only</button></div></div></div>
+
+<div id="login" class="login" hidden>
+  <div class="login-art">
+    <svg viewBox="0 0 420 200" aria-hidden="true">
+      <rect x="0" y="95" width="420" height="10" rx="2" fill="#B7B7B7"/>
+      <rect x="150" y="4" width="36" height="192" rx="4" fill="#D2B68A"/>
+      <rect x="190" y="20" width="32" height="160" rx="4" fill="#EEE5D3"/>
+      <rect x="226" y="36" width="28" height="128" rx="4" fill="#B7B7B7"/>
+      <rect x="258" y="52" width="24" height="96" rx="4" fill="#000000"/>
+      <rect x="286" y="68" width="18" height="64" rx="3" fill="#D2B68A"/>
+      <rect x="308" y="82" width="12" height="36" rx="2" fill="#6F6DBA"/>
+    </svg>
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <div class="rule"></div>
+      <h1>Gym Manager<span>Pro</span></h1>
+      <p style="margin-top:18px">Members, check-ins, subscriptions, shop and finance for a single gym.</p>
+    </div>
+  </div>
+  <div class="login-form">
+    <div class="login-top"><div id="login-lang"></div><button class="theme-sw" type="button" role="switch" data-act="theme"></button></div>
+    <form id="login-form" novalidate>
+      <h2>Sign in</h2>
+      <div class="field"><label for="l_user">Username</label><input id="l_user" name="username" autocomplete="username" required></div>
+      <div class="field"><label for="l_pass">Password</label><input id="l_pass" name="password" type="password" autocomplete="current-password" required></div>
+      <div class="form-error" id="login-err" role="alert" hidden></div>
+      <button id="login-go" class="btn btn-primary" type="submit" style="padding:10px 14px">Sign in</button>
+      <p class="small muted" id="first-note"></p>
+      <p class="small muted" id="storage-note"></p>
+    </form>
+  </div>
+</div>
+
+<div id="app" class="app" hidden>
+  <aside id="side" class="side" aria-label="Main navigation">
+    <div class="brand"><span id="logo-slot"></span><div><b>Gym Manager</b><small>Pro</small></div></div>
+    <div class="qci">
+      <span class="cap">Quick check-in</span>
+      <label class="sr" for="qci-q">Search a member to check in</label>
+      <input id="qci-q" type="search" placeholder="Type a name" autocomplete="off">
+      <div id="qci-list" class="qci-list"></div>
+    </div>
+    <nav id="nav" class="nav"></nav>
+    <div class="side-foot">
+      <div id="who" class="who"></div>
+      <button class="btn btn-sm" type="button" data-act="logout" id="logout-btn"></button>
+    </div>
+  </aside>
+  <div id="scrim" class="scrim"></div>
+  <main class="main">
+    <div class="topbar">
+      <button id="menu-btn" class="btn icon-btn menu-btn" type="button" aria-label="Open menu" aria-controls="side"></button>
+      <h1 id="title">Dashboard</h1>
+      <span id="sync" class="chip warn" role="status"><span class="chip-t"></span></span>
+      <div id="top-lang"></div>
+      <button class="theme-sw" type="button" role="switch" data-act="theme"></button>
+    </div>
+    <div id="view" class="view"></div>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
