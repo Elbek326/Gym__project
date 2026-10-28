@@ -1,9 +1,8 @@
 import G from './core/gym.js';
 import { renderAuditList } from './pages/audit.js';
 import { openMemberForm, planFields, readPlan, renderMemberList, wirePlan } from './pages/members.js';
-import Persist from './persist.js';
 import { hooks, ui } from './state.js';
-import { csvText, saveXlsx } from './ui/export.js';
+import { csvText, downloadFile, saveXlsx } from './ui/export.js';
 import { $, esc } from './ui/html.js';
 import { confirmBox, openModal } from './ui/modal.js';
 import { cap1, fld, money, sel, todayStr } from './ui/parts.js';
@@ -58,7 +57,7 @@ export const ACT = {
     R.rows.forEach(function (r) {
       rows.push([r.c.name, r.c.phone || '', r.status, r.sub ? G.planLabel(r.sub) : '', r.sub ? (G.subRemaining(r.sub, today) + (r.sub.sub_type === 'sessions' ? ' sessions' : ' days')) : '', r.sub && r.sub.end_date ? G.fmtDate(r.sub.end_date) : '', r.c.days || 'any', r.c.debt || 0, G.fmtDate(r.c.created_at.slice(0, 10)), r.last ? G.fmtDate(r.last) : '']);
     });
-    try { if (await Persist.saveFile(dayDownload('members', 'csv'), csvText(rows))) toast('Members exported'); } catch (e) { fail(e); }
+    try { if (downloadFile(dayDownload('members', 'csv'), csvText(rows))) toast('Members exported'); } catch (e) { fail(e); }
   },
   freeze: async function (el) {
     var c = memberById(el.dataset.id);
@@ -198,7 +197,7 @@ export const ACT = {
   },
 
   backup: async function () {
-    try { var b = G.exportBackup(); if (await Persist.saveFile(b.name, b.text)) toast('Backup saved'); renderAuditList(); } catch (e) { fail(e); }
+    try { var b = G.exportBackup(); if (downloadFile(b.name, b.text)) toast('Backup saved'); renderAuditList(); } catch (e) { fail(e); }
   },
   restore: function () { $('#restore-file').click(); },
   resetPw: function (el) {

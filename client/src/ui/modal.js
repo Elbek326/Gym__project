@@ -1,5 +1,5 @@
 import G from '../core/gym.js';
-import { hooks, modalState, modals } from '../state.js';
+import { modals } from '../state.js';
 import { $, esc } from './html.js';
 import { ic } from './icons.js';
 
@@ -18,7 +18,6 @@ export function openModal(o) {
     wrap.remove(); modals.splice(modals.indexOf(wrap), 1);
     if (o.onClose) o.onClose(result === true);
     if (prev && prev.focus && document.contains(prev)) prev.focus();
-    if (!modals.length && modalState.pending) { modalState.pending = false; hooks.render(); }
   }
   wrap.addEventListener('mousedown', function (e) { if (e.target === wrap) close(false); });
   wrap.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) close(false); });

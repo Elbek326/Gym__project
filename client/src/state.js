@@ -8,9 +8,8 @@ export const ui = {
   audit: { q: '', page: 1 },
   det: { allVisits: false, allTx: false }
 };
-/* open modal elements, and a flag the modal sets when a render was asked for while it was open */
+/* open modal elements */
 export const modals = [];
-export const modalState = { pending: false };
 /* filled in by app.js, so pages and actions can call render() / go() without importing app.js (no import cycle) */
 export const hooks = { render: null, go: null, logout: null, setPref: null, toggleTheme: null, checkIn: null };
 

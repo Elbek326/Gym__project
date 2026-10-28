@@ -6,7 +6,7 @@ import { PAGES } from './pages/index.js';
 import { renderMemberList } from './pages/members.js';
 import Persist from './persist.js';
 import { PREFS, effectiveTheme, loadPrefs, savePrefs } from './prefs.js';
-import { hooks, modalState, modals, ui } from './state.js';
+import { hooks, modals, ui } from './state.js';
 import { $, $$, esc } from './ui/html.js';
 import { ic, plateLogo } from './ui/icons.js';
 import { confirmBox } from './ui/modal.js';
@@ -20,7 +20,6 @@ $('#menu-btn').innerHTML = ic('menu');
 $('#logout-btn').innerHTML = ic('out') + 'Sign out';
 /* ===== app: routing, actions, login, boot ===== */
 const NAV_ORDER = ['profile', 'dashboard', 'members', 'shop', 'finance', 'analytics', 'rankings', 'audit', 'users', 'password', 'settings'];
-var renderTimer = null;
 
 function currentPage() { return PAGES[ui.route.page] || PAGES.dashboard; }
 /* the route gate: used by render() and by the nav, so a page a user may not open is never reachable, not just hidden */
@@ -64,24 +63,12 @@ function buildNav() {
 }
 function updateSync() {
   var el = $('#sync'); if (!el) return;
-  var m = Persist.mode, s = Persist.status, txt, cls;
-  if (!Persist.canWrite) { txt = 'View only'; cls = 'warn'; }
-  else if (s === 'error') { txt = 'Save failed'; cls = 'expired'; }
+  var s = Persist.status, txt, cls;
+  if (s === 'error') { txt = 'Save failed'; cls = 'expired'; }
   else if (s === 'saving') { txt = 'Saving'; cls = 'warn'; }
-  else if (m === 'shared') { txt = 'Shared database'; cls = 'active'; }
   else { txt = 'This browser only'; cls = 'warn'; }
   el.className = 'chip ' + cls; $('.chip-t', el).textContent = txt;
-  el.title = m === 'shared' ? 'Data is saved to the shared database of this page.' : 'Data is saved in this browser only. Use Backup now regularly.';
-}
-function scheduleRender() {
-  if (modals.length) { modalState.pending = true; return; }
-  clearTimeout(renderTimer); renderTimer = setTimeout(function () {
-    if (!$('#app').hidden && !G.me()) { doLogout(); return; }   /* signed-in account deleted or its role removed on another device */
-    var active = document.activeElement;
-    var keep = active && active.id && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
-    if (keep) { if (ui.route.page === 'members') renderMemberList(); else if (ui.route.page === 'audit') renderAuditList(); return; }
-    render();
-  }, 150);
+  el.title = 'Data is saved in this browser only. Use Backup now regularly.';
 }
 /* the menu button: on wide screens it shows or hides the sidebar (PREFS.side), on narrow ones it opens or closes the drawer */
 var mqNarrow = null;
@@ -157,9 +144,7 @@ function showLogin() {
   buildLoginLang();
   $('#first-note').innerHTML = tpl('First time here? Sign in as {0} with password {1}, then change it under My Password.', ['admin', 'admin123']);
   var note = $('#storage-note');
-  if (Persist.mode === 'shared') note.textContent = Persist.canWrite ? 'Data is saved to this page’s shared database.' : 'You can view this page but not save changes.';
-  else note.textContent = 'Data is saved in this browser only. Download a backup from the Audit Log page now and then.';
-  if (Persist.mode === 'shared' && !Persist.canWrite && !G.values('users').length) note.textContent = 'There is nothing you can open here yet. Ask the owner of this page to give you Contributor access.';
+  note.textContent = 'Data is saved in this browser only. Download a backup from the Audit Log page now and then.';
   setTimeout(function () { var u = $('#l_user'); if (u) u.focus(); }, 30);
 }
 function enterApp() {
@@ -256,20 +241,14 @@ $('#login-form').addEventListener('submit', async function (e) {
 });
 
 /* ---------- boot ---------- */
-export async function boot(forceLocal) {
+export async function boot() {
   applyPrefs();
-  $('#boot').hidden = false; $('#boot-msg').textContent = 'Opening Gym Manager Pro'; $('#boot-actions').hidden = true;
-  try {
-    await Persist.init(forceLocal);
-  } catch (e) {
-    $('#boot-msg').textContent = 'Could not reach the shared database.'; $('#boot-actions').hidden = false; return;
-  }
+  $('#boot').hidden = false; $('#boot-msg').textContent = 'Opening Gym Manager Pro';
+  Persist.init();
   Persist.onStatus = updateSync;
-  Persist.onRemote = scheduleRender;
   Persist.onError = function (err) {
     var code = err && err.code;
     if (code === 'quota_exceeded') toast('The database is full. Delete old data or restore a smaller backup.', 'err');
-    else if (code === 'revoked') toast('Your access changed. This page is now view only.', 'err');
     else toast('Changes could not be saved' + (code ? ' (' + code + ')' : '') + '.', 'err');
     updateSync();
   };
@@ -281,10 +260,5 @@ export async function boot(forceLocal) {
   if (restored) enterApp(); else showLogin();
   updateSync();
 }
-document.addEventListener('click', function (e) {
-  if (e.target.id === 'boot-retry') boot(false);
-  if (e.target.id === 'boot-local') boot(true);
-});
-
 hooks.render = render; hooks.go = go; hooks.logout = doLogout; hooks.setPref = setPref; hooks.toggleTheme = toggleTheme; hooks.checkIn = doCheckIn;
 
