@@ -9,8 +9,8 @@ parol hash'i hech qachon brauzerga bormaydi.
 |---|---|---|---|
 | 0 | Tayyorgarlik: papka, git, Node.js, PostgreSQL | Repo bor, `node -v` ishlaydi | tayyor |
 | 1 | Frontend'ni Vite loyihasiga bo'lish (localStorage rejimida) | `npm run dev` artifactdagidek ishlaydi | tayyor |
-| 2 | `GYM` core uchun Vitest testlari | Testlar o'tadi | — |
-| 3 | Express skeleti, PostgreSQL sxema, migratsiyalar | `GET /api/health`, jadvallar yaratiladi | — |
+| 2 | `GYM` core uchun Vitest testlari | Testlar o'tadi | tayyor |
+| 3 | Express skeleti, PostgreSQL sxema, migratsiyalar | `GET /api/health`, jadvallar yaratiladi | tayyor |
 | 4 | Serverda auth (sessiya cookie, bloklash, rollar) | Hash brauzerga bormaydi | — |
 | 5 | API: biznes qoidalar serverga | Barcha amallar API orqali | — |
 | 6 | Frontend'ni API'ga ulash | Ikki brauzer bir vaqtda, ma'lumot yo'qolmaydi | — |
