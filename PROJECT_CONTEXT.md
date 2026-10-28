@@ -58,6 +58,31 @@ Maqsad: artifactni Node.js + Express + PostgreSQL web dasturga o'tkazish. Reja: 
 3. `git push` muammosini hal qilish (terminal xatosini ko'rish).
 4. Bosqich 3: Express skeleti va PostgreSQL sxemasi.
 
+## Sessiya: 2026-10-28 (davomi)
+
+- **Bosqich 2 tayyor** (`4a3cf76`): `client/src/core/__tests__/`, 11 fayl, 186 test (Node, DOM'siz). `npm --prefix client test`.
+- **Bug tuzatildi** (`fa75b39`): `extendSubscription` rad etilganda obunani o'zgartirmaydi (all-or-nothing).
+- **Bosqich 3 tayyor** (`8fa15db`): `server/` — Express 5 + helmet + pg.
+  - `GET /api/health`.
+  - `migrations/001_init.sql`: 10 jadval; bir kunda bitta check-in va bitta faol obuna baza darajasida kafolatlangan.
+  - Skriptlar: `migrate`, `seed` (admin/admin123), `create-db.sql`.
+  - Lokal baza: `gym`, foydalanuvchi `gym_app`, parol faqat `server/.env` da.
+- **Bosqich 4 tayyor** (`e4f57dc`): `/api/auth/login|logout|me|password`.
+  - `migrations/002_sessions.sql`: token httpOnly cookie'da (`gym_sid`), bazada faqat SHA-256 hash.
+  - Bloklash: 5 xatodan keyin 30 soniya (IP + username).
+  - CSRF: yozuvchi so'rovlar faqat JSON.
+  - `requireUser`/`requireAdmin`/`requireStaff` tayyor.
+  - 13 server testi.
+- Server core'ni `../client/src/core/gym.js` dan import qiladi. Keyinroq umumiy `shared/` papkaga ko'chirish mumkin.
+- Push: GitHub `main` = `e4f57dc`.
+- Push eslatmasi: cmd'da avval `cd /d "C:\Users\Rustamov Elbek\Desktop\Gym_project_code"` qilish kerak, aks holda `git push` boshqa papkada ishlaydi.
+
+### Keyingi sessiya: bosqich 5
+- Biznes qoidalarni API'ga ko'chirish: a'zolar, obuna, check-in, to'lov, do'kon, moliya, audit, foydalanuvchilar, zaxira.
+- Core qoidalari serverda ishlaydi. Har bir yozish tranzaksiyada, ruxsatlar middleware'da.
+- A'zo faqat o'z profilini oladi.
+- Test bazasi: hozir testlar asosiy `gym` bazasida vaqtinchalik `zt...` foydalanuvchilar bilan ishlaydi. Bosqich 5 da alohida `gym_test` bazasini o'ylab ko'rish kerak.
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
