@@ -37,7 +37,18 @@ Maqsad: artifactni Node.js + Express + PostgreSQL web dasturga o'tkazish. Reja: 
 - PostgreSQL `postgres` paroli faqat foydalanuvchida. U `server/.env` ga yoziladi va commit qilinmaydi.
 - Git remote hali yo'q, GitHub repo yaratilmagan.
 
-### Keyingi sessiya
+## Sessiya: 2026-10-28
+
+- `~/.claude/_domain.md` yangi stack'ka moslab yangilandi.
+- GitHub: private repo `Elbek326/Gym__project`, `origin/main` ulandi.
+- **Bosqich 1 tayyor** (`d788dec`, `f65a24f`, `4b65787`): `client/` — Vite 8 + vanilla JS ES modullar.
+  - `src/core/gym.js` (DOM'siz, `export default GYM`), `i18n/`, `ui/`, `pages/`, `app.js`, `actions.js`, `state.js`, `prefs.js`, `persist.js`.
+  - Faqat localStorage (`gympro.v1`); `window.claude` olib tashlandi; yuklab olish Blob + `<a download>` orqali.
+  - SheetJS 0.20.3 (cdn.sheetjs.com tarball), faqat eksportda lazy yuklanadi. Asosiy bundle 140 kB.
+  - Ishga tushirish: `npm --prefix client run dev` yoki `.claude/launch.json` dagi "client".
+- Eslatma: `i18n/uz.js` da shared-database matnlari qoldi (ishlatilmaydi). Member roli bilan kirish va forma tahrirlari alohida sinalmagan.
+
+### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
    - `core/gym.js`, `i18n/`, `ui/`, `pages/`, `styles/`;
