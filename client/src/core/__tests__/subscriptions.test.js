@@ -198,9 +198,8 @@ describe('extendSubscription', () => {
     expect(() => GYM.extendSubscription(c.id, { days: 3651 })).toThrow('Days must be at most 3650.');
     expect(() => GYM.extendSubscription(c.id, { days: 1.5 })).toThrow('Days must be a whole number.');
   });
-  /* BUG: extendSubscription changes end_date in memory before it discovers that `sessions` is not allowed on a time plan,
-     so a rejected request still leaves the plan extended (unsaved, no audit row). The request should be all-or-nothing. */
-  it.fails('a rejected extend (days + sessions on a time plan) leaves the plan untouched', async () => {
+  // extendSubscription is all-or-nothing: validation runs before any mutation.
+  it('a rejected extend (days + sessions on a time plan) leaves the plan untouched', async () => {
     const c = await mkMember('Ali', timePlan({ end_date: '2026-03-31' }));
     expect(() => GYM.extendSubscription(c.id, { days: 5, sessions: 2 })).toThrow();
     expect(GYM.activeSub(c.id).end_date).toBe('2026-03-31');

@@ -540,14 +540,10 @@ var GYM = (function () {
     var days = num(f.days || 0, 'Days', { min: 0, max: 3650, int: true });
     var sess = num(f.sessions || 0, 'Sessions', { min: 0, max: 1000, int: true });
     if (!days && !sess) throw new AppError('Enter days or sessions to add.');
-    if (days) {
-      if (!s.end_date) throw new AppError('This subscription has no end date to extend.');
-      s.end_date = addDays(s.end_date, days);
-    }
-    if (sess) {
-      if (s.sub_type !== 'sessions') throw new AppError('Sessions can only be added to a session-based plan.');
-      s.total_sessions += sess;
-    }
+    if (days && !s.end_date) throw new AppError('This subscription has no end date to extend.');
+    if (sess && s.sub_type !== 'sessions') throw new AppError('Sessions can only be added to a session-based plan.');
+    if (days) s.end_date = addDays(s.end_date, days);
+    if (sess) s.total_sessions += sess;
     put('subs', s);
     audit('SUBSCRIPTION_EXTENDED', c.name + ': +' + days + ' days, +' + sess + ' sessions');
     return s;
