@@ -48,6 +48,16 @@ Maqsad: artifactni Node.js + Express + PostgreSQL web dasturga o'tkazish. Reja: 
   - Ishga tushirish: `npm --prefix client run dev` yoki `.claude/launch.json` dagi "client".
 - Eslatma: `i18n/uz.js` da shared-database matnlari qoldi (ishlatilmaydi). Member roli bilan kirish va forma tahrirlari alohida sinalmagan.
 
+### Sessiya oxiridagi holat (2026-10-28)
+- **Bosqich 2 jarayonda:** agent `client/src/core/__tests__/` da Vitest testlarini yozayotgan edi; `client/package.json` ga vitest qo'shilgan. Sessiya yopilganda bu o'zgarishlar hali commit qilinmagan edi.
+- **Push:** GitHub'dagi `main` hali `6740518` da; `d788dec..6b26bf1` (4 commit) push qilinmagan — foydalanuvchining `git push` urinishi o'tmagan.
+
+### Keyingi sessiya shu bilan boshlanadi
+1. `git status`: agar testlar commit qilingan bo'lsa (`Bosqich 2: ...`), `npm --prefix client test` bilan tekshirish; aks holda `__tests__/` ni ko'rib chiqib, testlarni tugatish.
+2. Test topgan buglar ro'yxatini ko'rib chiqish (`it.fails`/`it.todo` bilan belgilangan).
+3. `git push` muammosini hal qilish (terminal xatosini ko'rish).
+4. Bosqich 3: Express skeleti va PostgreSQL sxemasi.
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
