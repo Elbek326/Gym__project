@@ -980,7 +980,7 @@ var GYM = (function () {
     requireAdmin(); needWrite();
     var obj;
     try { obj = JSON.parse(text); } catch (e) { throw new AppError('This file is not a valid backup.'); }
-    if (!obj || obj.app !== 'gym-manager-pro' || !obj.tables) throw new AppError('This file is not a Gym Manager Pro backup.');
+    if (!obj || obj.app !== 'gym-manager-pro' || !obj.tables) throw new AppError('This file is not a Bek Sport Gym backup.');
     var ns = emptyState();
     TABLES.forEach(function (t) {
       var src = obj.tables[t] || {};

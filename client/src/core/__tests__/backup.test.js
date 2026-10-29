@@ -63,9 +63,9 @@ describe('restoreBackup', () => {
     expect(() => GYM.restoreBackup('not json')).toThrow('This file is not a valid backup.');
   });
   it('rejects JSON that is not a Gym Manager Pro backup', () => {
-    expect(() => GYM.restoreBackup('null')).toThrow('This file is not a Gym Manager Pro backup.');
-    expect(() => GYM.restoreBackup('{"app":"other","tables":{}}')).toThrow('This file is not a Gym Manager Pro backup.');
-    expect(() => GYM.restoreBackup('{"app":"gym-manager-pro"}')).toThrow('This file is not a Gym Manager Pro backup.');
+    expect(() => GYM.restoreBackup('null')).toThrow('This file is not a Bek Sport Gym backup.');
+    expect(() => GYM.restoreBackup('{"app":"other","tables":{}}')).toThrow('This file is not a Bek Sport Gym backup.');
+    expect(() => GYM.restoreBackup('{"app":"gym-manager-pro"}')).toThrow('This file is not a Bek Sport Gym backup.');
   });
   it('rejects damaged record ids and leaves the data untouched', async () => {
     await populate();

@@ -188,7 +188,7 @@ export const ACT = {
   },
   exportReport: async function () {
     var rep = G.monthlyReport(ui.an.ym);
-    var sum = [['Gym Manager Pro: monthly report', '']].concat(rep.summary);
+    var sum = [['Bek Sport Gym: monthly report', '']].concat(rep.summary);
     var att = [['Date', 'Day', 'Check-ins']].concat(rep.days.map(function (d) { return [G.fmtDate(d.d), d.dow, d.count]; }));
     att.push(['Total', '', rep.days.reduce(function (a, d) { return a + d.count; }, 0)]);
     var pay = [['Date', 'Member', 'Type', 'Amount (UZS)', 'Note']].concat(rep.payments.map(function (r) { return [G.fmtDate(r.d), r.who, r.label, r.amount, r.note]; }));

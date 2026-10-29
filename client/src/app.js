@@ -44,7 +44,7 @@ function render() {
   var title = pg.title;
   if (ui.route.page === 'member') { var c = G.S().clients[ui.route.id]; title = c ? c.name : 'Member'; }
   $('#title').textContent = title;
-  document.title = 'Gym Manager Pro';
+  document.title = 'Bek Sport Gym';
   $('#view').innerHTML = pg.render();
   if (pg.after) pg.after();
   buildNav();
@@ -125,14 +125,14 @@ function setPref(key, val) {
 }
 /* the quick light/night switch flips between the two; Settings holds the full choice */
 function toggleTheme() { setPref('mode', effectiveTheme() === 'dark' ? 'light' : 'dark'); }
-/* a two-button language switch: full names on the login page, EN | UZ in the topbar (fixed codes, so I18N skips them) */
+/* a two-button language switch: EN | UZ on the login page and in the topbar (fixed codes, so I18N skips them) */
 function langSeg(items, fixed) {
   return '<div class="lang-seg" role="group" aria-label="Language">' +
     items.map(function (l) { return '<button type="button" data-act="setLang" data-v="' + l[0] + '" aria-pressed="' + (PREFS.lang === l[0]) + '" lang="' + l[0] + '"' + (fixed ? ' data-notr' : '') + '>' + l[1] + '</button>'; }).join('') + '</div>';
 }
 function buildLoginLang() {
   var host = $('#login-lang'); if (!host) return;
-  host.innerHTML = langSeg([['uz', 'O‘zbekcha'], ['en', 'English']]);
+  host.innerHTML = langSeg([['en', 'EN'], ['uz', 'UZ']], true);
 }
 loadPrefs();
 $('#top-lang').innerHTML = langSeg([['en', 'EN'], ['uz', 'UZ']], true);
@@ -142,9 +142,7 @@ try { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEven
 function showLogin() {
   $('#boot').hidden = true; $('#app').hidden = true; $('#login').hidden = false;
   buildLoginLang();
-  $('#first-note').innerHTML = tpl('First time here? Sign in as {0} with password {1}, then change it under My Password.', ['admin', 'admin123']);
-  var note = $('#storage-note');
-  note.textContent = 'Data is saved in this browser only. Download a backup from the Audit Log page now and then.';
+  $('#first-note').textContent = 'Welcome to the Bek Sport Gym app! Ask the manager for your login and password.';
   setTimeout(function () { var u = $('#l_user'); if (u) u.focus(); }, 30);
 }
 function enterApp() {
@@ -243,7 +241,7 @@ $('#login-form').addEventListener('submit', async function (e) {
 /* ---------- boot ---------- */
 export async function boot() {
   applyPrefs();
-  $('#boot').hidden = false; $('#boot-msg').textContent = 'Opening Gym Manager Pro';
+  $('#boot').hidden = false; $('#boot-msg').textContent = 'Opening Bek Sport Gym';
   Persist.init();
   Persist.onStatus = updateSync;
   Persist.onError = function (err) {

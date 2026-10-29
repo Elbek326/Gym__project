@@ -10,16 +10,15 @@ import I18N from './i18n.js';
     /* navigation and pages */
     "Dashboard": "Boshqaruv paneli", "Members": "A'zolar", "Member": "A'zo", "Shop": "Do'kon", "Finance": "Moliya", "Analytics": "Tahlil",
     "Rankings": "Reyting", "Audit Log": "Harakatlar jurnali", "User Roles": "Foydalanuvchi rollari", "My Password": "Mening parolim", "Settings": "Sozlamalar",
-    "Gym Manager": "Gym Manager", "Pro": "Pro", "Main navigation": "Asosiy menyu", "Open menu": "Menyuni ochish", "Close menu": "Menyuni yopish",
-    "Opening Gym Manager Pro": "Gym Manager Pro ochilmoqda", "Try again": "Qayta urinish", "Work in this browser only": "Faqat shu brauzerda ishlash",
+    "Main navigation": "Asosiy menyu", "Open menu": "Menyuni ochish", "Close menu": "Menyuni yopish",
+    "Opening Bek Sport Gym": "Bek Sport Gym ochilmoqda", "Try again": "Qayta urinish", "Work in this browser only": "Faqat shu brauzerda ishlash",
     "Could not reach the shared database.": "Umumiy ma'lumotlar bazasiga ulanib bo'lmadi.",
 
     /* login */
     "Sign in": "Kirish", "Sign out": "Chiqish", "Username": "Foydalanuvchi nomi", "Password": "Parol",
     "Members, check-ins, subscriptions, shop and finance for a single gym.": "Bitta sport zal uchun a'zolar, tashriflar, abonementlar, do'kon va moliya.",
-    "Data is saved to this page’s shared database.": "Ma'lumotlar shu sahifaning umumiy bazasiga saqlanadi.",
     "You can view this page but not save changes.": "Sahifani ko'rishingiz mumkin, lekin o'zgarishlarni saqlab bo'lmaydi.",
-    "Data is saved in this browser only. Download a backup from the Audit Log page now and then.": "Ma'lumotlar faqat shu brauzerda saqlanadi. Vaqti-vaqti bilan Harakatlar jurnali sahifasidan zaxira nusxa yuklab oling.",
+    "Welcome to the Bek Sport Gym app! Ask the manager for your login and password.": "«Bek Sport Gym» ilovasiga xush kelibsiz! Login va parol uchun menejerga murojaat qiling.",
     "There is nothing you can open here yet. Ask the owner of this page to give you Contributor access.": "Hozircha bu yerda ochadigan narsangiz yo'q. Sahifa egasidan Contributor ruxsatini so'rang.",
     "Wrong username or password.": "Foydalanuvchi nomi yoki parol noto'g'ri.",
     "Please sign in first.": "Avval tizimga kiring.",
@@ -194,7 +193,7 @@ import I18N from './i18n.js';
     "Sessions can only be added to a session-based plan.": "Mashg'ulotlarni faqat mashg'ulot bo'yicha tarifga qo'shish mumkin.", "Start date is not valid.": "Boshlanish sanasi noto'g'ri.",
     "That username is taken.": "Bu foydalanuvchi nomi band.", "The backup has no admin account.": "Zaxirada admin hisobi yo'q.", "The last admin cannot be deleted.": "Oxirgi adminni o'chirib bo'lmaydi.",
     "The last admin cannot be demoted.": "Oxirgi adminning rolini pasaytirib bo'lmaydi.", "The photo is not a valid image.": "Rasm yaroqli tasvir emas.", "The photo is too large.": "Rasm juda katta.",
-    "This file is not a Gym Manager Pro backup.": "Bu fayl Gym Manager Pro zaxira nusxasi emas.", "This file is not a valid backup.": "Bu fayl yaroqli zaxira nusxa emas.",
+    "This file is not a Bek Sport Gym backup.": "Bu fayl Bek Sport Gym zaxira nusxasi emas.", "This file is not a valid backup.": "Bu fayl yaroqli zaxira nusxa emas.",
     "This member has no active subscription.": "Bu a'zoning faol abonementi yo'q.", "This membership is already frozen.": "Bu a'zolik allaqachon muzlatilgan.",
     "This membership is not frozen.": "Bu a'zolik muzlatilmagan.", "This subscription has no end date to extend.": "Bu abonementda uzaytiriladigan tugash sanasi yo'q.",
     "This view is read-only. Changes cannot be saved.": "Bu ko'rinish faqat o'qish uchun. O'zgarishlarni saqlab bo'lmaydi.", "User not found.": "Foydalanuvchi topilmadi.",
@@ -219,7 +218,7 @@ import I18N from './i18n.js';
     "September": "Sentyabr", "October": "Oktyabr", "November": "Noyabr", "December": "Dekabr",
 
     /* export files (Excel, CSV) */
-    "Remaining": "Qolgan", "Summary": "Xulosa", "Daily Attendance": "Kunlik davomat", "Payments": "To'lovlar", "Gym Manager Pro: monthly report": "Gym Manager Pro: oylik hisobot",
+    "Remaining": "Qolgan", "Summary": "Xulosa", "Daily Attendance": "Kunlik davomat", "Payments": "To'lovlar", "Bek Sport Gym: monthly report": "Bek Sport Gym: oylik hisobot",
     "Members who visited": "Kelgan a'zolar", "Membership payments": "A'zolik to'lovlari", "Shop sales": "Do'kon sotuvlari", "Total revenue": "Jami tushum", "Total expenses": "Jami xarajatlar",
     "active": "faol", "frozen": "muzlatilgan", "expired": "muddati tugagan", "any": "istalgan", "Member": "A'zo", "Joined": "Qo'shilgan sana", "Last visit": "Oxirgi tashrif",
     "New debt": "Yangi qarz", "Stock": "Zaxira"
@@ -363,7 +362,5 @@ import I18N from './i18n.js';
   TP["Replace {0} with the contents of {1}? This cannot be undone. Download a backup first if you are not sure."] =
     "{0} {1} faylidagi ma'lumotlarga almashtirilsinmi? Buni qaytarib bo'lmaydi. Ishonchingiz komil bo'lmasa, avval zaxira nusxa yuklab oling.";
   TP["Current debt: {0}. A payment lowers the debt and never takes it below zero."] = "Joriy qarz: {0}. To'lov qarzni kamaytiradi, lekin noldan pastga tushirmaydi.";
-  TP["First time here? Sign in as {0} with password {1}, then change it under My Password."] =
-    "Birinchi marta kirayapsizmi? {0} nomi va {1} paroli bilan kiring, so'ng «Mening parolim» bo'limida o'zgartiring.";
   D["all current data"] = "barcha joriy ma'lumotlar";
 })();
