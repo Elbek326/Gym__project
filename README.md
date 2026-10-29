@@ -7,7 +7,7 @@ Claude Artifact'dan to'liq web dasturga o'tkazilmoqda.
 
 | Papka | Nima |
 |---|---|
-| `legacy/` | Artifact'ning asl HTML fayli (v9). Faqat manba sifatida, tahrirlanmaydi |
+| `legacy/` | Artifact'ning jonli versiyasi (v10) bilan bir xil nusxa. Artifact o'zgartirilsa, shu ham yangilanadi |
 | `client/` | Frontend: Vite + vanilla JS (bosqich 1) |
 | `server/` | Backend: Node.js + Express + PostgreSQL (bosqich 3) |
 | `docs/` | Reja va hujjatlar |

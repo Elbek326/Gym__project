@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Gym Manager Pro</title>
+<title>Bek Sport Gym</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600;700&display=swap">
 <style>
 /* Colors and shapes come from themes.css (generated): four looks x light/night.
@@ -290,7 +290,7 @@ a { color: inherit; }
 @media (prefers-color-scheme: dark) { :root[data-look="qum"]:not([data-theme="light"]) { --bg: #17110C; --surface: #221913; --surface-2: #33261C; --ink: #F4ECDF; --ink-2: #D3C5AF; --ink-3: #A8977F; --line: #4A3828; --line-2: #2D2118; --control: #7A6248; --brand: #E3B77E; --brand-ink: #1E1409; --plate: #E3B77E; --focus: #F0CB98; --ok: #A5D08A; --ok-bg: #233018; --frozen: #B0BAF0; --frozen-bg: #232846; --bad: #F0A59A; --bad-bg: #3E1D18; --warn: #E3C070; --warn-bg: #33290F; --bar: #B07A42; --bar-hi: #F0CB98; --grid: #2D2118; --side-bg: #0E0A07; --side-ink: #F4ECDF; --side-ink-2: #A8977F; --side-strong: #FFF8EE; --side-hover: #221913; --side-line: #2D2118; --toast-dot: #1E1409; --toast-err: #8F2A2A; color-scheme: dark; } }
 :root[data-look="qum"][data-theme="dark"] { --bg: #17110C; --surface: #221913; --surface-2: #33261C; --ink: #F4ECDF; --ink-2: #D3C5AF; --ink-3: #A8977F; --line: #4A3828; --line-2: #2D2118; --control: #7A6248; --brand: #E3B77E; --brand-ink: #1E1409; --plate: #E3B77E; --focus: #F0CB98; --ok: #A5D08A; --ok-bg: #233018; --frozen: #B0BAF0; --frozen-bg: #232846; --bad: #F0A59A; --bad-bg: #3E1D18; --warn: #E3C070; --warn-bg: #33290F; --bar: #B07A42; --bar-hi: #F0CB98; --grid: #2D2118; --side-bg: #0E0A07; --side-ink: #F4ECDF; --side-ink-2: #A8977F; --side-strong: #FFF8EE; --side-hover: #221913; --side-line: #2D2118; --toast-dot: #1E1409; --toast-err: #8F2A2A; color-scheme: dark; }
 </style>
-<div id="boot" class="boot"><div style="text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center"><span id="boot-msg">Opening Gym Manager Pro</span><div id="boot-actions" hidden class="row-actions" style="justify-content:center"><button id="boot-retry" class="btn" type="button">Try again</button><button id="boot-local" class="btn btn-primary" type="button">Work in this browser only</button></div></div></div>
+<div id="boot" class="boot"><div style="text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center"><span id="boot-msg">Opening Bek Sport Gym</span><div id="boot-actions" hidden class="row-actions" style="justify-content:center"><button id="boot-retry" class="btn" type="button">Try again</button><button id="boot-local" class="btn btn-primary" type="button">Work in this browser only</button></div></div></div>
 
 <div id="login" class="login" hidden>
   <div class="login-art">
@@ -305,7 +305,7 @@ a { color: inherit; }
     </svg>
     <div style="display:flex;flex-direction:column;gap:22px">
       <div class="rule"></div>
-      <h1>Gym Manager<span>Pro</span></h1>
+      <h1>Bek Sport<span>Gym</span></h1>
       <p style="margin-top:18px">Members, check-ins, subscriptions, shop and finance for a single gym.</p>
     </div>
   </div>
@@ -318,14 +318,13 @@ a { color: inherit; }
       <div class="form-error" id="login-err" role="alert" hidden></div>
       <button id="login-go" class="btn btn-primary" type="submit" style="padding:10px 14px">Sign in</button>
       <p class="small muted" id="first-note"></p>
-      <p class="small muted" id="storage-note"></p>
     </form>
   </div>
 </div>
 
 <div id="app" class="app" hidden>
   <aside id="side" class="side" aria-label="Main navigation">
-    <div class="brand"><span id="logo-slot"></span><div><b>Gym Manager</b><small>Pro</small></div></div>
+    <div class="brand"><span id="logo-slot"></span><div><b>Bek Sport</b><small>Gym</small></div></div>
     <div class="qci">
       <span class="cap">Quick check-in</span>
       <label class="sr" for="qci-q">Search a member to check in</label>
@@ -1342,7 +1341,7 @@ var GYM = (function () {
     requireAdmin(); needWrite();
     var obj;
     try { obj = JSON.parse(text); } catch (e) { throw new AppError('This file is not a valid backup.'); }
-    if (!obj || obj.app !== 'gym-manager-pro' || !obj.tables) throw new AppError('This file is not a Gym Manager Pro backup.');
+    if (!obj || obj.app !== 'gym-manager-pro' || !obj.tables) throw new AppError('This file is not a Bek Sport Gym backup.');
     var ns = emptyState();
     TABLES.forEach(function (t) {
       var src = obj.tables[t] || {};
@@ -1576,16 +1575,15 @@ var I18N = (function () {
     /* navigation and pages */
     "Dashboard": "Boshqaruv paneli", "Members": "A'zolar", "Member": "A'zo", "Shop": "Do'kon", "Finance": "Moliya", "Analytics": "Tahlil",
     "Rankings": "Reyting", "Audit Log": "Harakatlar jurnali", "User Roles": "Foydalanuvchi rollari", "My Password": "Mening parolim", "Settings": "Sozlamalar",
-    "Gym Manager": "Gym Manager", "Pro": "Pro", "Main navigation": "Asosiy menyu", "Open menu": "Menyuni ochish", "Close menu": "Menyuni yopish",
-    "Opening Gym Manager Pro": "Gym Manager Pro ochilmoqda", "Try again": "Qayta urinish", "Work in this browser only": "Faqat shu brauzerda ishlash",
+    "Main navigation": "Asosiy menyu", "Open menu": "Menyuni ochish", "Close menu": "Menyuni yopish",
+    "Opening Bek Sport Gym": "Bek Sport Gym ochilmoqda", "Try again": "Qayta urinish", "Work in this browser only": "Faqat shu brauzerda ishlash",
     "Could not reach the shared database.": "Umumiy ma'lumotlar bazasiga ulanib bo'lmadi.",
 
     /* login */
     "Sign in": "Kirish", "Sign out": "Chiqish", "Username": "Foydalanuvchi nomi", "Password": "Parol",
     "Members, check-ins, subscriptions, shop and finance for a single gym.": "Bitta sport zal uchun a'zolar, tashriflar, abonementlar, do'kon va moliya.",
-    "Data is saved to this page’s shared database.": "Ma'lumotlar shu sahifaning umumiy bazasiga saqlanadi.",
     "You can view this page but not save changes.": "Sahifani ko'rishingiz mumkin, lekin o'zgarishlarni saqlab bo'lmaydi.",
-    "Data is saved in this browser only. Download a backup from the Audit Log page now and then.": "Ma'lumotlar faqat shu brauzerda saqlanadi. Vaqti-vaqti bilan Harakatlar jurnali sahifasidan zaxira nusxa yuklab oling.",
+    "Welcome to the Bek Sport Gym app! Ask the manager for your login and password.": "«Bek Sport Gym» ilovasiga xush kelibsiz! Login va parol uchun menejerga murojaat qiling.",
     "There is nothing you can open here yet. Ask the owner of this page to give you Contributor access.": "Hozircha bu yerda ochadigan narsangiz yo'q. Sahifa egasidan Contributor ruxsatini so'rang.",
     "Wrong username or password.": "Foydalanuvchi nomi yoki parol noto'g'ri.",
     "Please sign in first.": "Avval tizimga kiring.",
@@ -1760,7 +1758,7 @@ var I18N = (function () {
     "Sessions can only be added to a session-based plan.": "Mashg'ulotlarni faqat mashg'ulot bo'yicha tarifga qo'shish mumkin.", "Start date is not valid.": "Boshlanish sanasi noto'g'ri.",
     "That username is taken.": "Bu foydalanuvchi nomi band.", "The backup has no admin account.": "Zaxirada admin hisobi yo'q.", "The last admin cannot be deleted.": "Oxirgi adminni o'chirib bo'lmaydi.",
     "The last admin cannot be demoted.": "Oxirgi adminning rolini pasaytirib bo'lmaydi.", "The photo is not a valid image.": "Rasm yaroqli tasvir emas.", "The photo is too large.": "Rasm juda katta.",
-    "This file is not a Gym Manager Pro backup.": "Bu fayl Gym Manager Pro zaxira nusxasi emas.", "This file is not a valid backup.": "Bu fayl yaroqli zaxira nusxa emas.",
+    "This file is not a Bek Sport Gym backup.": "Bu fayl Bek Sport Gym zaxira nusxasi emas.", "This file is not a valid backup.": "Bu fayl yaroqli zaxira nusxa emas.",
     "This member has no active subscription.": "Bu a'zoning faol abonementi yo'q.", "This membership is already frozen.": "Bu a'zolik allaqachon muzlatilgan.",
     "This membership is not frozen.": "Bu a'zolik muzlatilmagan.", "This subscription has no end date to extend.": "Bu abonementda uzaytiriladigan tugash sanasi yo'q.",
     "This view is read-only. Changes cannot be saved.": "Bu ko'rinish faqat o'qish uchun. O'zgarishlarni saqlab bo'lmaydi.", "User not found.": "Foydalanuvchi topilmadi.",
@@ -1785,7 +1783,7 @@ var I18N = (function () {
     "September": "Sentyabr", "October": "Oktyabr", "November": "Noyabr", "December": "Dekabr",
 
     /* export files (Excel, CSV) */
-    "Remaining": "Qolgan", "Summary": "Xulosa", "Daily Attendance": "Kunlik davomat", "Payments": "To'lovlar", "Gym Manager Pro: monthly report": "Gym Manager Pro: oylik hisobot",
+    "Remaining": "Qolgan", "Summary": "Xulosa", "Daily Attendance": "Kunlik davomat", "Payments": "To'lovlar", "Bek Sport Gym: monthly report": "Bek Sport Gym: oylik hisobot",
     "Members who visited": "Kelgan a'zolar", "Membership payments": "A'zolik to'lovlari", "Shop sales": "Do'kon sotuvlari", "Total revenue": "Jami tushum", "Total expenses": "Jami xarajatlar",
     "active": "faol", "frozen": "muzlatilgan", "expired": "muddati tugagan", "any": "istalgan", "Member": "A'zo", "Joined": "Qo'shilgan sana", "Last visit": "Oxirgi tashrif",
     "New debt": "Yangi qarz", "Stock": "Zaxira"
@@ -1929,8 +1927,6 @@ var I18N = (function () {
   TP["Replace {0} with the contents of {1}? This cannot be undone. Download a backup first if you are not sure."] =
     "{0} {1} faylidagi ma'lumotlarga almashtirilsinmi? Buni qaytarib bo'lmaydi. Ishonchingiz komil bo'lmasa, avval zaxira nusxa yuklab oling.";
   TP["Current debt: {0}. A payment lowers the debt and never takes it below zero."] = "Joriy qarz: {0}. To'lov qarzni kamaytiradi, lekin noldan pastga tushirmaydi.";
-  TP["First time here? Sign in as {0} with password {1}, then change it under My Password."] =
-    "Birinchi marta kirayapsizmi? {0} nomi va {1} paroli bilan kiring, so'ng «Mening parolim» bo'limida o'zgartiring.";
   D["all current data"] = "barcha joriy ma'lumotlar";
 })();
 /* ===== persistence: shared database (claude db capability) or this browser only ===== */
@@ -2725,7 +2721,7 @@ function render() {
   var title = pg.title;
   if (ui.route.page === 'member') { var c = G.S().clients[ui.route.id]; title = c ? c.name : 'Member'; }
   $('#title').textContent = title;
-  document.title = 'Gym Manager Pro';
+  document.title = 'Bek Sport Gym';
   $('#view').innerHTML = pg.render();
   if (pg.after) pg.after();
   buildNav();
@@ -2847,7 +2843,7 @@ function langSeg(items, fixed) {
 }
 function buildLoginLang() {
   var host = $('#login-lang'); if (!host) return;
-  host.innerHTML = langSeg([['uz', 'O‘zbekcha'], ['en', 'English']]);
+  host.innerHTML = langSeg([['en', 'EN'], ['uz', 'UZ']], true);
 }
 loadPrefs();
 $('#top-lang').innerHTML = langSeg([['en', 'EN'], ['uz', 'UZ']], true);
@@ -2857,11 +2853,9 @@ try { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEven
 function showLogin() {
   $('#boot').hidden = true; $('#app').hidden = true; $('#login').hidden = false;
   buildLoginLang();
-  $('#first-note').innerHTML = tpl('First time here? Sign in as {0} with password {1}, then change it under My Password.', ['admin', 'admin123']);
-  var note = $('#storage-note');
-  if (Persist.mode === 'shared') note.textContent = Persist.canWrite ? 'Data is saved to this page’s shared database.' : 'You can view this page but not save changes.';
-  else note.textContent = 'Data is saved in this browser only. Download a backup from the Audit Log page now and then.';
-  if (Persist.mode === 'shared' && !Persist.canWrite && !G.values('users').length) note.textContent = 'There is nothing you can open here yet. Ask the owner of this page to give you Contributor access.';
+  var note = $('#first-note');
+  note.textContent = 'Welcome to the Bek Sport Gym app! Ask the manager for your login and password.';
+  if (Persist.mode === 'shared' && !Persist.canWrite) note.textContent = G.values('users').length ? 'You can view this page but not save changes.' : 'There is nothing you can open here yet. Ask the owner of this page to give you Contributor access.';
   setTimeout(function () { var u = $('#l_user'); if (u) u.focus(); }, 30);
 }
 function enterApp() {
@@ -3066,7 +3060,7 @@ const ACT = {
   },
   exportReport: async function () {
     var rep = G.monthlyReport(ui.an.ym);
-    var sum = [['Gym Manager Pro: monthly report', '']].concat(rep.summary);
+    var sum = [['Bek Sport Gym: monthly report', '']].concat(rep.summary);
     var att = [['Date', 'Day', 'Check-ins']].concat(rep.days.map(function (d) { return [G.fmtDate(d.d), d.dow, d.count]; }));
     att.push(['Total', '', rep.days.reduce(function (a, d) { return a + d.count; }, 0)]);
     var pay = [['Date', 'Member', 'Type', 'Amount (UZS)', 'Note']].concat(rep.payments.map(function (r) { return [G.fmtDate(r.d), r.who, r.label, r.amount, r.note]; }));
@@ -3192,7 +3186,7 @@ window.APP = { render: render, go: go, prefs: PREFS, setPref: setPref, i18n: I18
 /* ---------- boot ---------- */
 async function boot(forceLocal) {
   applyPrefs();
-  $('#boot').hidden = false; $('#boot-msg').textContent = 'Opening Gym Manager Pro'; $('#boot-actions').hidden = true;
+  $('#boot').hidden = false; $('#boot-msg').textContent = 'Opening Bek Sport Gym'; $('#boot-actions').hidden = true;
   try {
     await Persist.init(forceLocal);
   } catch (e) {
