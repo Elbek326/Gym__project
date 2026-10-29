@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import { query } from './db.js';
 import { authRouter } from './auth/routes.js';
 import { jsonOnlyWrites, loadUser } from './auth/middleware.js';
+import { membersRouter } from './api/members.js';
 
 /* builds the Express app without listening, so tests can use it directly */
 export function createApp() {
@@ -15,6 +16,7 @@ export function createApp() {
   app.use('/api', loadUser);
 
   app.use('/api/auth', authRouter);
+  app.use('/api/members', membersRouter);
 
   /* liveness and database check */
   app.get('/api/health', async (req, res) => {
