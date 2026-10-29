@@ -143,6 +143,31 @@ Maqsad: artifactni Node.js + Express + PostgreSQL web dasturga o'tkazish. Reja: 
 - Artifactdan "Zaxira nusxa" JSON'ini yuklab olish va yangi tizimda tiklash (`POST /api/admin/backup/restore` yoki import skripti).
 - `http://127.0.0.1:55905/ApprovedWebList.htm` ga ishonilmaydi va ochilmaydi.
 
+## Sessiya: 2026-10-29 (oxiri)
+
+- **Bosqich 7 bekor** (`a9e53b5`): eski artifact ma'lumoti ko'chirilmaydi, tizim toza bazadan boshlanadi (foydalanuvchi qarori).
+- **Push qoidasi:** push'ni foydalanuvchining o'zi qiladi, kuniga bir marta, sessiya oxirida. Claude faqat commit qiladi.
+- **Hosting tanlovi:** Render (ilova, free) + Neon (PostgreSQL, free). Repo private qoladi: Render private repo bilan ishlaydi.
+  - Cheklovlar: Render free 15 daqiqada uxlaydi; Render'ning o'z free Postgres'i 30 kunda o'chiriladi (shuning uchun Neon).
+  - Ikkalasi ham xorijda: rasman ishga tushganda mahalliy VPS kerak (qonun).
+- **8.1 tayyor** (`5776a39`):
+  - server `client/dist` ni ham beradi;
+  - har ishga tushishda migratsiya;
+  - production'da birinchi admin tasodifiy parol bilan (log'da bir marta);
+  - `trust proxy` = 1 production'da;
+  - ildiz `package.json` (`npm run build` / `npm start`), `.nvmrc` = 24;
+  - `docs/DEPLOY.md`.
+  - Lokal production sinovi: health, SPA, 404, CSP, konsol toza.
+- **Render'ga hali deploy qilinmagan.** Foydalanuvchi Render formasida to'xtagan; Neon bazasi ochilganmi, noma'lum.
+
+### Keyingi sessiya shu bilan boshlanadi
+1. `git push` qilinganini tekshirish (Render kodni GitHub'dan oladi).
+2. Foydalanuvchi bilan:
+   - Neon project yaratish;
+   - Render Web Service: Build `npm run build`, Start `npm start`, env `DATABASE_URL`, `NODE_ENV=production`.
+3. Render Logs'dagi birinchi admin paroli bilan kirish → darhol parolni almashtirish.
+4. `/api/health` tekshiruvi; keyin 8.5 (kundalik zaxira: Neon'da yoki pg_dump).
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
