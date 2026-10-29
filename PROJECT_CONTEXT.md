@@ -118,6 +118,31 @@ Maqsad: artifactni Node.js + Express + PostgreSQL web dasturga o'tkazish. Reja: 
 3. `git push` (avval `cd /d "C:\Users\Rustamov Elbek\Desktop\Gym_project_code"`).
 4. Keyin bosqich 7: artifact zaxirasini PostgreSQL'ga import.
 
+## Sessiya: 2026-10-29 (davomi)
+
+- Push: `ba3dc48` gacha GitHub'da.
+- **Bosqich 6 tayyor** (`99b8ecc`, `c5a16cc`, `2df118b`, `58a4809`): brauzerda baza nusxasi yo'q.
+  - `client/src/api.js`.
+  - Vite `/api` proxy -> :3000.
+  - `.claude/launch.json` da "server" va "client" konfiguratsiyalari.
+  - Login/me/logout/parol server orqali, sessiya cookie'da (sahifa yangilansa ham kirilgan holat saqlanadi).
+  - Har bir sahifa: `load()` -> `render(data)`.
+    - Eskirgan javob tashlab yuboriladi.
+    - Server o'chiq bo'lsa "Qayta urinish" kartasi chiqadi.
+  - Barcha amallar, CSV/Excel eksport, zaxira va tiklash API orqali.
+  - `persist.js` (localStorage baza) o'chirildi; `gym_prefs` qoldi.
+  - Server: `GET /api/members/names`, `GET /api/members?all=1`, ro'yxatda `total_all`, `has_sample`. 53 server testi.
+  - Ikki oynadan bitta a'zoni check-in qilish: ikkinchisi xato oladi.
+- Tekshirilmagan:
+  - "Save failed" holati;
+  - 4 ta look alohida;
+  - profildagi "Yangi abonement" tugmasi.
+- Lokal `gym` bazasi: faqat admin/admin123.
+
+### Keyingi sessiya: bosqich 7
+- Artifactdan "Zaxira nusxa" JSON'ini yuklab olish va yangi tizimda tiklash (`POST /api/admin/backup/restore` yoki import skripti).
+- `http://127.0.0.1:55905/ApprovedWebList.htm` ga ishonilmaydi va ochilmaydi.
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:

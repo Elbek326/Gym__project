@@ -13,7 +13,7 @@ parol hash'i hech qachon brauzerga bormaydi.
 | 3 | Express skeleti, PostgreSQL sxema, migratsiyalar | `GET /api/health`, jadvallar yaratiladi | tayyor |
 | 4 | Serverda auth (sessiya cookie, bloklash, rollar) | Hash brauzerga bormaydi | tayyor |
 | 5 | API: biznes qoidalar serverga | Barcha amallar API orqali | tayyor |
-| 6 | Frontend'ni API'ga ulash | Ikki brauzer bir vaqtda, ma'lumot yo'qolmaydi | — |
+| 6 | Frontend'ni API'ga ulash | Ikki brauzer bir vaqtda, ma'lumot yo'qolmaydi | tayyor |
 | 7 | Artifact zaxira JSON'ini PostgreSQL'ga import | Eski ma'lumot yangi tizimda | — |
 | 8 | Deploy: domen, HTTPS, Docker, kundalik zaxira | Internet orqali ishlaydi | — |
 | 9 | Ixtiyoriy: PWA, real-time (SSE), monitoring | — | — |
