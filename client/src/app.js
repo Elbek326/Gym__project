@@ -1,12 +1,12 @@
 import { ACT } from './actions.js';
 import G from './core/gym.js';
 import I18N from './i18n/i18n.js';
-import { renderAuditList } from './pages/audit.js';
+import { api, enc, net, qs } from './api.js';
+import { refreshAuditList } from './pages/audit.js';
 import { PAGES } from './pages/index.js';
-import { renderMemberList } from './pages/members.js';
-import Persist from './persist.js';
+import { refreshMemberList } from './pages/members.js';
 import { PREFS, effectiveTheme, loadPrefs, savePrefs } from './prefs.js';
-import { hooks, modals, ui } from './state.js';
+import { hooks, modals, session, ui } from './state.js';
 import { $, $$, esc } from './ui/html.js';
 import { ic, plateLogo } from './ui/icons.js';
 import { confirmBox } from './ui/modal.js';
@@ -33,26 +33,62 @@ function pageAllowed(pg, me) {
 function homePage(me) { return G.isStaff(me) ? 'dashboard' : 'profile'; }
 function go(page, id) {
   ui.route = { page: page, id: id || null };
-  if (page === 'members') { /* keep search and filter between visits */ }
   if (page === 'member') { ui.det.allVisits = false; ui.det.allTx = false; }
   closeDrawer(); render(); window.scrollTo(0, 0);
 }
-function render() {
-  if (!G.me()) { showLogin(); return; }
-  var pg = currentPage();
-  if (!pageAllowed(pg, G.me())) { ui.route = { page: homePage(G.me()), id: null }; pg = PAGES[ui.route.page]; }
+/* load then render: the page asks the API for exactly what it shows. Each call gets a number; an answer for a page
+   the user has already left (or an older request for this page) is dropped instead of overwriting the new one. */
+var renderSeq = 0, shownKey = null;
+function routeOk() {
+  var me = session.user, pg = currentPage();
+  if (!pageAllowed(pg, me)) { ui.route = { page: homePage(me), id: null }; pg = PAGES[ui.route.page]; }
+  return pg;
+}
+function pageKey() { return ui.route.page + ':' + (ui.route.id || ''); }
+function paint(pg, data, key) {
   var title = pg.title;
-  if (ui.route.page === 'member') { var c = G.S().clients[ui.route.id]; title = c ? c.name : 'Member'; }
+  if (ui.route.page === 'member') title = data && data.c ? data.c.name : 'Member';
   $('#title').textContent = title;
   document.title = 'Bek Sport Gym';
-  $('#view').innerHTML = pg.render();
-  if (pg.after) pg.after();
+  ui.data = data; shownKey = key;
+  $('#view').innerHTML = pg.render(data);
+  if (pg.after) pg.after(data);
   buildNav();
-  updateSync();
+}
+async function render() {
+  if (!session.user) { showLogin(); return; }
+  var pg = routeOk(), key = pageKey(), my = ++renderSeq;
+  buildNav(); updateSync();
+  var fresh = shownKey !== key;
+  var wait = null;
+  if (fresh) {   /* a short loading note, but only if the answer is not instant */
+    $('#title').textContent = ui.route.page === 'member' ? 'Member' : pg.title;
+    wait = setTimeout(function () { if (my === renderSeq) $('#view').innerHTML = '<div class="empty" role="status"><b>Loading</b></div>'; }, 120);
+  }
+  var data = null;
+  try { data = pg.load ? await pg.load() : null; }
+  catch (e) {
+    clearTimeout(wait);
+    if (my !== renderSeq || !session.user) return;
+    if (fresh) {
+      shownKey = null; $('#view').innerHTML = '<div class="card"><div class="empty"><b>Could not load this page</b>' + esc(e && e.message) + '<div style="margin-top:12px"><button class="btn" data-act="retry">Try again</button></div></div></div>';
+    } else fail(e);
+    return;
+  }
+  clearTimeout(wait);
+  if (my !== renderSeq || !session.user) return;
+  paint(pg, data, key);
   runQuick();   /* keep the quick check-in list in step with member changes */
 }
+/* draw the current page again from the data it already has (language, theme, show-all toggles): no request */
+function repaint() {
+  if (!session.user) { showLogin(); return; }
+  var pg = routeOk();
+  if (pageKey() !== shownKey) { render(); return; }
+  paint(pg, ui.data, shownKey);
+}
 function buildNav() {
-  var me = G.me(); var active = currentPage().parent || ui.route.page;
+  var me = session.user; var active = currentPage().parent || ui.route.page;
   var staff = G.isStaff(me);
   $('.qci').hidden = !staff;   /* quick check-in is a staff tool */
   $('#nav').innerHTML = NAV_ORDER.map(function (k) {
@@ -61,14 +97,15 @@ function buildNav() {
   }).join('');
   $('#who').innerHTML = avatar({ name: me.username }) + '<div style="min-width:0"><b>' + esc(me.username) + '</b><small>' + esc(me.role.replace('_', ' ')) + '</small></div>';
 }
+/* the topbar chip is the server connection: online, saving, or a write that failed */
 function updateSync() {
   var el = $('#sync'); if (!el) return;
-  var s = Persist.status, txt, cls;
+  var s = net.status, txt, cls;
   if (s === 'error') { txt = 'Save failed'; cls = 'expired'; }
   else if (s === 'saving') { txt = 'Saving'; cls = 'warn'; }
-  else { txt = 'This browser only'; cls = 'warn'; }
+  else { txt = 'Online'; cls = 'ok'; }
   el.className = 'chip ' + cls; $('.chip-t', el).textContent = txt;
-  el.title = 'Data is saved in this browser only. Use Backup now regularly.';
+  el.title = 'Data is saved on the server.';
 }
 /* the menu button: on wide screens it shows or hides the sidebar (PREFS.side), on narrow ones it opens or closes the drawer */
 var mqNarrow = null;
@@ -121,7 +158,7 @@ function updateLangButtons() {
 }
 function setPref(key, val) {
   PREFS[key] = val; savePrefs(); applyPrefs();
-  if (G.me()) render(); else showLogin();
+  repaint();
 }
 /* the quick light/night switch flips between the two; Settings holds the full choice */
 function toggleTheme() { setPref('mode', effectiveTheme() === 'dark' ? 'light' : 'dark'); }
@@ -136,7 +173,7 @@ function buildLoginLang() {
 }
 loadPrefs();
 $('#top-lang').innerHTML = langSeg([['en', 'EN'], ['uz', 'UZ']], true);
-try { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', function () { updateThemeButtons(); if (G.me() && ui.route.page === 'settings') render(); }); } catch (e) { /* ignore */ }
+try { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEventListener) mq.addEventListener('change', function () { updateThemeButtons(); if (session.user && ui.route.page === 'settings') repaint(); }); } catch (e) { /* ignore */ }
 
 /* ---------- login / logout ---------- */
 function showLogin() {
@@ -147,29 +184,43 @@ function showLogin() {
 }
 function enterApp() {
   $('#boot').hidden = true; $('#login').hidden = true; $('#app').hidden = false;
-  try { sessionStorage.setItem('gym_uid', G.me().id); } catch (e) { /* ignore */ }
-  ui.route = { page: homePage(G.me()), id: null }; render(); window.scrollTo(0, 0);
+  ui.route = { page: homePage(session.user), id: null }; shownKey = null; render(); window.scrollTo(0, 0);
 }
-function doLogout() {
-  G.logout(); try { sessionStorage.removeItem('gym_uid'); } catch (e) { /* ignore */ }
+/* back to the login screen: after sign-out, a restore, or a session that ended */
+function leaveApp() {
+  session.user = null; renderSeq++; shownKey = null; ui.data = null;
   modals.slice().forEach(function (w) { w.remove(); }); modals.length = 0;
   $('#qci-q').value = ''; $('#qci-list').innerHTML = '';
   showLogin();
 }
+function doLogout() {
+  api.post('/api/auth/logout').catch(function () { /* the server session is gone or unreachable; the screen is signed out either way */ });
+  leaveApp();
+}
+net.onUnauthorized = function () {
+  if (!session.user) return false;   /* a failed sign-in attempt is not a lost session */
+  leaveApp(); toast('Please sign in first.', 'err'); return true;
+};
+net.onStatus = updateSync;
 
 /* ---------- check in ---------- */
-function doCheckIn(id, stay) {
+async function doCheckIn(id) {
   try {
-    var r = G.checkIn(id);
+    var r = await api.post('/api/members/' + enc(id) + '/checkin');
     var left = r.sub.sub_type === 'sessions' ? r.remaining + ' sessions left' : r.remaining + ' days left';
     toast(r.client.name + ' checked in. ' + left + '.');
-    render(); runQuick();
+    render();
   } catch (e) { fail(e); }
 }
-function runQuick() {
-  var q = $('#qci-q').value.trim(); var host = $('#qci-list');
-  if (!q || !G.isStaff(G.me())) { host.innerHTML = ''; return; }
-  var rows = G.memberRows({ q: q }).rows.slice(0, 6);
+/* the sidebar quick check-in: the members endpoint with a search text, the first 6 rows */
+var quickSeq = 0, quickTimer = null;
+async function runQuick() {
+  var q = $('#qci-q').value.trim(), host = $('#qci-list'), my = ++quickSeq;
+  if (!q || !session.user || !G.isStaff(session.user)) { host.innerHTML = ''; return; }
+  var d;
+  try { d = await api.get('/api/members' + qs({ q: q })); } catch (e) { if (my === quickSeq) host.innerHTML = ''; return; }
+  if (my !== quickSeq || $('#qci-q').value.trim() !== q) return;
+  var rows = d.items.slice(0, 6);
   host.innerHTML = rows.length ? rows.map(function (r) {
     var cls = r.status === 'active' ? 'dot-ok' : r.status === 'frozen' ? 'dot-frozen' : 'dot-bad';
     return '<div class="qci-item"><span class="tile" style="border:0;background:none;padding:0"><span class="cap"><i class="' + cls + '"></i></span></span><span class="n" title="' + esc(r.c.name) + '">' + esc(r.c.name) + '</span><button class="btn btn-sm" data-act="checkin" data-id="' + esc(r.c.id) + '"' + (r.status !== 'active' ? ' disabled' : '') + '>In</button></div>';
@@ -188,13 +239,13 @@ const MEMBER_ACTS = { nav: 1, logout: 1, theme: 1, setLang: 1, setMode: 1, setLo
 document.addEventListener('click', function (e) {
   var el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   var fn = ACT[el.dataset.act]; if (!fn) return;
-  var who = G.me(); if (who && !G.isStaff(who) && !MEMBER_ACTS[el.dataset.act]) return;
+  var who = session.user; if (who && !G.isStaff(who) && !MEMBER_ACTS[el.dataset.act]) return;
   try { var r = fn(el, e); if (r && r.catch) r.catch(fail); } catch (err) { fail(err); }
 });
 document.addEventListener('input', function (e) {
   var el = e.target.closest('[data-input]'); if (!el) return;
-  if (el.dataset.input === 'memSearch') { ui.mem.q = el.value; ui.mem.page = 1; renderMemberList(); }
-  if (el.dataset.input === 'auditSearch') { ui.audit.q = el.value; ui.audit.page = 1; renderAuditList(); }
+  if (el.dataset.input === 'memSearch') { ui.mem.q = el.value; ui.mem.page = 1; refreshMemberList(true); }
+  if (el.dataset.input === 'auditSearch') { ui.audit.q = el.value; ui.audit.page = 1; refreshAuditList(true); }
 });
 document.addEventListener('change', function (e) {
   var el = e.target.closest('[data-change]'); if (!el) return;
@@ -202,14 +253,14 @@ document.addEventListener('change', function (e) {
     var k = el.dataset.change;
     if (k === 'finMonth') { if (/^\d{4}-\d{2}$/.test(el.value)) { ui.fin.ym = el.value; render(); } }
     else if (k === 'anMonth') { if (/^\d{4}-\d{2}$/.test(el.value)) { ui.an.ym = el.value; render(); } }
-    else if (k === 'setRole') { try { G.setRole(el.dataset.id, el.value); toast('Role changed'); } catch (err) { fail(err); } render(); }
+    else if (k === 'setRole') { api.put('/api/admin/users/' + enc(el.dataset.id) + '/role', { role: el.value }).then(function () { toast('Role changed'); }, fail).then(render); }
     else if (k === 'restoreFile') {
       var f = el.files[0]; el.value = ''; if (!f) return;
       f.text().then(function (text) {
-        return confirmBox({ title: 'Restore backup', html: tpl('Replace {0} with the contents of {1}? This cannot be undone. Download a backup first if you are not sure.', [lt('all current data'), f.name]), confirm: 'Replace everything', danger: true }).then(function (ok) {
+        return confirmBox({ title: 'Restore backup', html: tpl('Replace {0} with the contents of {1}? This cannot be undone. Download a backup first if you are not sure.', [lt('all current data'), f.name]), confirm: 'Replace everything', danger: true }).then(async function (ok) {
           if (!ok) return;
-          var r = G.restoreBackup(text);
-          if (r.loggedOut) { toast('Backup restored. Please sign in again.'); doLogout(); } else { try { G.audit('RESTORE', f.name); } catch (x) { /* ignore */ } toast('Backup restored'); render(); }
+          await api.post('/api/admin/backup/restore', { text: text });   /* the server ends every session, ours too */
+          leaveApp(); toast('Backup restored. Please sign in again.');
         });
       }).catch(fail);
     }
@@ -221,18 +272,19 @@ document.addEventListener('submit', async function (e) {
   var err = $('.form-error', form); err.hidden = true;
   try {
     var fd = new FormData(form); var k = form.dataset.form;
-    if (k === 'addUser') { await G.addUser({ username: fd.get('username'), password: fd.get('password'), role: fd.get('role') }); toast('User added'); render(); }
-    else if (k === 'password') { await G.changeOwnPassword(fd.get('current'), fd.get('next'), fd.get('confirm')); form.reset(); toast('Password changed'); }
+    if (k === 'addUser') { await api.post('/api/admin/users', { username: fd.get('username'), password: fd.get('password'), role: fd.get('role') }); toast('User added'); render(); }
+    else if (k === 'password') { await api.post('/api/auth/password', { current: fd.get('current'), next: fd.get('next'), confirm: fd.get('confirm') }); form.reset(); toast('Password changed'); }
   } catch (ex) { err.textContent = ex instanceof G.AppError ? ex.message : 'Something went wrong: ' + ex.message; err.hidden = false; }
 });
-$('#qci-q').addEventListener('input', runQuick);
+$('#qci-q').addEventListener('input', function () { clearTimeout(quickTimer); quickTimer = setTimeout(runQuick, 180); });
 $('#menu-btn').addEventListener('click', toggleSide);
 $('#scrim').addEventListener('click', closeDrawer);
 $('#login-form').addEventListener('submit', async function (e) {
   e.preventDefault();
   var err = $('#login-err'), btn = $('#login-go'); err.hidden = true; btn.disabled = true;
   try {
-    await G.login($('#l_user').value, $('#l_pass').value);
+    var r = await api.post('/api/auth/login', { username: $('#l_user').value, password: $('#l_pass').value });
+    session.user = r.user;
     $('#l_pass').value = ''; enterApp();
   } catch (ex) { err.textContent = ex instanceof G.AppError ? ex.message : 'Sign in failed: ' + ex.message; err.hidden = false; }
   finally { btn.disabled = false; }
@@ -242,21 +294,13 @@ $('#login-form').addEventListener('submit', async function (e) {
 export async function boot() {
   applyPrefs();
   $('#boot').hidden = false; $('#boot-msg').textContent = 'Opening Bek Sport Gym';
-  Persist.init();
-  Persist.onStatus = updateSync;
-  Persist.onError = function (err) {
-    var code = err && err.code;
-    if (code === 'quota_exceeded') toast('The database is full. Delete old data or restore a smaller backup.', 'err');
-    else toast('Changes could not be saved' + (code ? ' (' + code + ')' : '') + '.', 'err');
-    updateSync();
-  };
-  try {
-    if (!G.Store.readOnly) { await G.ensureDefaultAdmin(); await G.migratePasswords(); }
-  } catch (e) { console.error(e); }
-  var restored = null;
-  try { restored = G.restoreSession(sessionStorage.getItem('gym_uid')); } catch (e) { restored = null; }
-  if (restored) enterApp(); else showLogin();
+  var offline = null;
+  try { session.user = (await api.get('/api/auth/me')).user; } catch (e) { offline = e; }
+  if (session.user) enterApp(); else {
+    showLogin();
+    if (offline) { $('#login-err').textContent = offline.message; $('#login-err').hidden = false; }
+  }
   updateSync();
 }
-hooks.render = render; hooks.go = go; hooks.logout = doLogout; hooks.setPref = setPref; hooks.toggleTheme = toggleTheme; hooks.checkIn = doCheckIn;
+hooks.render = render; hooks.repaint = repaint; hooks.go = go; hooks.logout = doLogout; hooks.setPref = setPref; hooks.toggleTheme = toggleTheme; hooks.checkIn = doCheckIn;
 

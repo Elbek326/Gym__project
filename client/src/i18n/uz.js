@@ -13,6 +13,8 @@ import I18N from './i18n.js';
     "Main navigation": "Asosiy menyu", "Open menu": "Menyuni ochish", "Close menu": "Menyuni yopish",
     "Opening Bek Sport Gym": "Bek Sport Gym ochilmoqda", "Try again": "Qayta urinish", "Work in this browser only": "Faqat shu brauzerda ishlash",
     "Could not reach the shared database.": "Umumiy ma'lumotlar bazasiga ulanib bo'lmadi.",
+    "Could not reach the server.": "Serverga ulanib bo'lmadi.", "Online": "Onlayn", "Data is saved on the server.": "Ma'lumotlar serverda saqlanadi.",
+    "Loading": "Yuklanmoqda", "Could not load this page": "Sahifani yuklab bo'lmadi", "Internal server error": "Server xatosi", "Not found": "Topilmadi",
 
     /* login */
     "Sign in": "Kirish", "Sign out": "Chiqish", "Username": "Foydalanuvchi nomi", "Password": "Parol",

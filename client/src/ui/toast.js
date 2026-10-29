@@ -10,6 +10,7 @@ export function toast(msg, type) {
   setTimeout(function () { el.remove(); }, type === 'err' ? 6500 : 3800);
 }
 export function fail(err) {
+  if (err && err.signedOut) return;   /* the login screen and its own notice already say it */
   if (err instanceof G.AppError) toast(err.message, 'err');
   else { console.error(err); toast('Something went wrong: ' + (err && err.message ? err.message : err), 'err'); }
 }
