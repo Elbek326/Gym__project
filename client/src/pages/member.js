@@ -1,5 +1,6 @@
 import G from '../core/gym.js';
-import { ui } from '../state.js';
+import { api, enc } from '../api.js';
+import { session, ui } from '../state.js';
 import { lineSpark } from '../ui/charts.js';
 import { esc } from '../ui/html.js';
 import { ic } from '../ui/icons.js';
@@ -10,11 +11,17 @@ function typeChip(t) {
   var m = { payment: 'ok', income: 'ok', charge: 'warn', adjustment: 'plain' };
   return '<span class="chip ' + (m[t] || 'plain') + '">' + cap1(t) + '</span>';
 }
-export function pMember() { return memberView(ui.route.id, false); }
-export function pMyProfile() { return memberView(G.me().client, true); }
+/* a member that is gone (404) is shown as a "not found" card, not as a load error */
+async function loadProfile(id) {
+  try { return await api.get('/api/members/' + enc(id)); }
+  catch (e) { if (e.message === 'Member not found.') return null; throw e; }
+}
+export function loadMember() { return loadProfile(ui.route.id); }
+export function loadMyProfile() { return loadProfile(session.user.client); }
+export function pMember(P) { return memberView(P, false); }
+export function pMyProfile(P) { return memberView(P, true); }
 /* one profile for both: staff get the action buttons; a signed-in member sees only their own data, read-only (ro) */
-function memberView(cid, ro) {
-  var P = G.profileData(cid);
+function memberView(P, ro) {
   if (!P) return '<div class="card"><div class="empty"><b>Member not found</b>This member may have been deleted.</div></div>' + (ro ? '' : '<div><button class="btn" data-act="back">' + ic('back') + 'Back to members</button></div>');
   var c = P.c, today = todayStr(), status = P.status, sub = P.sub, subs = P.subs, visits = P.visits, txs = P.txs, ms = P.ms;
   var loginRow = '<dt>Login</dt><dd>' + (P.login ? esc(P.login.username) : '<span class="muted">No login</span>') + '</dd>';

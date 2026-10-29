@@ -57,6 +57,15 @@ describe.runIf(hasDb)('members API', () => {
     expect(q.body.items.map((r) => r.c.name)).toEqual(['Vali Aliyev']);
   });
 
+  it('lists every row with ?all=1 and the member names for the shop', async () => {
+    const all = await admin.get('/api/members?all=1');
+    expect(all.body.items).toHaveLength(2);
+    expect(all.body).toMatchObject({ page: 1, pages: 1, total: 2, total_all: 2, has_sample: false });
+    const names = await admin.get('/api/members/names');
+    expect(names.body).toEqual([{ id: ali, name: 'Ali Valiyev' }, { id: vali, name: 'Vali Aliyev' }]);
+    expect((await request(app).get('/api/members/names')).status).toBe(401);
+  });
+
   it('opens a profile, 404 for an unknown id', async () => {
     const p = await admin.get('/api/members/' + ali);
     expect(p.body.sub.total_sessions).toBe(12);
@@ -97,6 +106,8 @@ describe.runIf(hasDb)('members API', () => {
     expect(own.body.c).not.toHaveProperty('note');
     expect((await me.get('/api/members/' + vali)).status).toBe(403);
     expect((await me.get('/api/members')).status).toBe(403);
+    expect((await me.get('/api/members/names')).status).toBe(403);
+    expect((await me.get('/api/members?all=1')).status).toBe(403);
     expect((await me.post('/api/members', { name: 'X' })).status).toBe(403);
     expect((await me.post(`/api/members/${ali}/freeze`)).status).toBe(403);
   });

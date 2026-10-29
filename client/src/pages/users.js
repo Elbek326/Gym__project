@@ -1,13 +1,15 @@
 import G from '../core/gym.js';
+import { api } from '../api.js';
+import { session } from '../state.js';
 import { esc } from '../ui/html.js';
 import { ic } from '../ui/icons.js';
 import { fld, roleLabel, sel } from '../ui/parts.js';
 
 /* ---------- user roles (admin only) ---------- */
-export function pUsers() {
-  var me = G.me();
+export function loadUsers() { return api.get('/api/admin/users'); }
+export function pUsers(users) {
+  var me = session.user;
   if (me.role !== 'admin') return '<div class="card"><div class="empty"><b>Admins only</b>Only an admin can add users, change roles or reset passwords.</div></div>';
-  var users = G.listUsers();
   return '<section class="card"><header><h3>Add user</h3></header><form class="body" data-form="addUser" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end">' +
     fld('Username', 'username', { attrs: 'required maxlength="30" autocomplete="off"' }) + fld('Password', 'password', { type: 'password', attrs: 'required autocomplete="new-password"', hint: 'At least 4 characters' }) +
     sel('Role', 'role', G.ROLES.map(function (r) { return [r, roleLabel(r)]; }), 'admin') +

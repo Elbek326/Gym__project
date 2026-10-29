@@ -1,20 +1,21 @@
 import G from '../core/gym.js';
+import { api } from '../api.js';
 import { barChart } from '../ui/charts.js';
 import { esc } from '../ui/html.js';
 import { memberLink, money, sampleBanner, tile } from '../ui/parts.js';
 
 /* ---------- dashboard ---------- */
-export function pDashboard() {
-  var D = G.dashboard(), c = D.counts, S = G.S();
+export function loadDashboard() { return api.get('/api/dashboard'); }
+export function pDashboard(D) {
+  var c = D.counts;
   var todays = D.todays.map(function (v) {
-    var cl = S.clients[v.client]; if (!cl) return '';
-    var sub = G.activeSub(cl.id);
-    return '<div><span class="mono muted">' + esc(v.visit_time) + '</span><span class="grow">' + memberLink(cl) + '</span><span class="small muted">' + (sub ? G.subRemaining(sub, D.today) + (sub.sub_type === 'sessions' ? ' sessions left' : ' days left') : '') + '</span></div>';
+    if (!v.member) return '';
+    return '<div><span class="mono muted">' + esc(v.visit_time) + '</span><span class="grow">' + memberLink(v.member) + '</span><span class="small muted">' + (v.remaining != null ? v.remaining + (v.sub_type === 'sessions' ? ' sessions left' : ' days left') : '') + '</span></div>';
   }).join('');
   var exp = D.expiring.slice(0, 8).map(function (e) {
-    return '<div><span class="grow">' + memberLink(e.c) + '</span><span class="chip warn">' + esc(e.label) + '</span><button class="btn btn-sm" data-act="open" data-id="' + esc(e.c.id) + '">Renew</button></div>';
+    return '<div><span class="grow">' + memberLink(e.member) + '</span><span class="chip warn">' + esc(e.label) + '</span><button class="btn btn-sm" data-act="open" data-id="' + esc(e.member.id) + '">Renew</button></div>';
   }).join('');
-  return sampleBanner() + '<div class="tiles">' +
+  return sampleBanner(D.members_total, D.has_sample) + '<div class="tiles">' +
     tile('Members', c.total, '') + tile('Active', c.active, 'dot-ok') + tile('Frozen', c.frozen, 'dot-frozen') + tile('Expired', c.expired, 'dot-bad') +
     tile('Check-ins today', D.todays.length, 'dot-warn', G.dowOf(D.today) + ' ' + G.fmtDate(D.today)) +
     tile('Revenue this month', money(D.month.revenue), '', '', 'UZS') + tile('Expenses this month', money(D.month.expenses), '', '', 'UZS') +

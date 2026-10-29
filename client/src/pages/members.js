@@ -1,4 +1,5 @@
 import G from '../core/gym.js';
+import { api, enc, qs } from '../api.js';
 import { hooks, ui } from '../state.js';
 import { $, $$, esc } from '../ui/html.js';
 import { ic } from '../ui/icons.js';
@@ -7,26 +8,27 @@ import { openModal } from '../ui/modal.js';
 import { avatar, daysText, fld, memberLink, money, pager, planText, sampleBanner, sel, statusChip, todayStr } from '../ui/parts.js';
 import { fail, toast } from '../ui/toast.js';
 
-const MEM_PER = 25;
-
 /* ---------- members list ---------- */
-export function pMembers() {
-  return sampleBanner() + '<div class="toolbar"><div class="search">' + ic('search') + '<label class="sr" for="mem-q">Search members</label><input id="mem-q" type="search" placeholder="Search by name or phone" value="' + esc(ui.mem.q) + '" data-input="memSearch" autocomplete="off"></div>' +
+/* the list endpoint takes the search text, the status filter and the page; the answer has counts and the page rows */
+export function loadMembers() {
+  return api.get('/api/members' + qs({ q: ui.mem.q.trim(), filter: ui.mem.filter === 'all' ? '' : ui.mem.filter, page: ui.mem.page }));
+}
+export function pMembers(D) {
+  return sampleBanner(D.total_all, D.has_sample) + '<div class="toolbar"><div class="search">' + ic('search') + '<label class="sr" for="mem-q">Search members</label><input id="mem-q" type="search" placeholder="Search by name or phone" value="' + esc(ui.mem.q) + '" data-input="memSearch" autocomplete="off"></div>' +
     '<div class="seg" id="mem-seg" role="group" aria-label="Filter by status"></div>' +
     '<button class="btn" data-act="exportMembers">' + ic('download') + 'CSV</button>' +
     '<button class="btn btn-primary" data-act="addMember">' + ic('plus') + 'Add member</button></div>' +
     '<section class="card"><div id="mem-list"></div></section>';
 }
-export function renderMemberList() {
+export function renderMemberList(pg) {
   var host = $('#mem-list'); if (!host) return;
-  var R = G.memberRows({ q: ui.mem.q, filter: ui.mem.filter });
-  var pg = G.paginate(R.rows, ui.mem.page, MEM_PER); ui.mem.page = pg.page;
+  var R = { counts: pg.counts }; ui.mem.page = pg.page;
   var segs = [['all', 'All'], ['active', 'Active'], ['frozen', 'Frozen'], ['expired', 'Expired']];
   $('#mem-seg').innerHTML = segs.map(function (s) {
     return '<button type="button" data-act="memFilter" data-v="' + s[0] + '" aria-pressed="' + (ui.mem.filter === s[0]) + '">' + s[1] + '<span class="ct">' + R.counts[s[0]] + '</span></button>';
   }).join('');
   if (!pg.total) {
-    host.innerHTML = '<div class="empty"><b>' + (G.values('clients').length ? 'No members match' : 'No members yet') + '</b>' + (G.values('clients').length ? 'Try a different search or filter.' : 'Add your first member to get started.') + '</div>'; return;
+    host.innerHTML = '<div class="empty"><b>' + (pg.total_all ? 'No members match' : 'No members yet') + '</b>' + (pg.total_all ? 'Try a different search or filter.' : 'Add your first member to get started.') + '</div>'; return;
   }
   host.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Member</th><th>Status</th><th class="hide-sm">Plan</th><th class="hide-sm">Days</th><th class="r">Debt</th><th></th></tr></thead><tbody>' +
     pg.items.map(function (r) {
@@ -77,11 +79,11 @@ export function readPlan(fd) {
     total_sessions: fd.get('total_sessions'), price: fd.get('price') === '' ? '0' : fd.get('price'), paid: fd.get('paid')
   };
 }
-export function openMemberForm(c) {
+export function openMemberForm(c, acct) {
   var isEdit = !!c; c = c || { name: '', phone: '', note: '', days: '' };
   var img; /* undefined = unchanged, null = removed, string = new photo */
   var daySet = (c.days || '').split(',');
-  var acct = isEdit ? G.memberLogin(c.id) : null;   /* the member's existing login, if any */
+  /* acct = the member's existing login ({ username }) from the profile data, if any */
   var body = '<div class="photo-pick"><span id="ph-prev">' + avatar(isEdit ? c : { name: 'New' }, true) + '</span><div style="display:flex;flex-direction:column;gap:8px">' +
     '<label class="btn btn-sm" for="f_photo">' + ic('camera') + 'Choose photo</label><input class="sr" id="f_photo" type="file" accept="image/*">' +
     (isEdit && c.image ? '<label class="small"><input type="checkbox" name="remove_photo"> Remove photo</label>' : '') + '</div></div>' +
@@ -111,13 +113,28 @@ export function openMemberForm(c) {
       var days = fd.getAll('days');
       var image = fd.get('remove_photo') ? null : img;
       if (isEdit) {
-        await G.updateClient(c.id, { name: fd.get('name'), phone: fd.get('phone'), note: fd.get('note'), days: days, image: image, login: fd.get('login'), password: fd.get('password') });
+        await api.put('/api/members/' + enc(c.id), { name: fd.get('name'), phone: fd.get('phone'), note: fd.get('note'), days: days, image: image, login: fd.get('login'), password: fd.get('password') });
         toast('Member updated'); hooks.render();
       } else {
-        var m = await G.createClient({ name: fd.get('name'), phone: fd.get('phone'), note: fd.get('note'), days: days, image: image === undefined ? null : image, plan: readPlan(fd), login: fd.get('login'), password: fd.get('password') });
+        var m = await api.post('/api/members', { name: fd.get('name'), phone: fd.get('phone'), note: fd.get('note'), days: days, image: image === undefined ? null : image, plan: readPlan(fd), login: fd.get('login'), password: fd.get('password') });
         toast('Member added: ' + m.name); hooks.render();
       }
     }
   });
 }
 
+
+/* typing, a filter, a page button or a change elsewhere: ask for the list again and refill only the list (the search box keeps focus) */
+var seq = 0, timer = null;
+export function refreshMemberList(debounce) {
+  clearTimeout(timer);
+  var run = async function () {
+    var my = ++seq;
+    try {
+      var pg = await loadMembers();
+      if (my !== seq || ui.route.page !== 'members') return;
+      ui.data = pg; renderMemberList(pg);
+    } catch (e) { if (my === seq) fail(e); }
+  };
+  if (debounce) timer = setTimeout(run, 200); else run();
+}

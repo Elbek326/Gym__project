@@ -15,13 +15,24 @@ function memberFields(b = {}) {
   };
 }
 
-/* list with search, status filter and paging: GET /api/members?q=ali&filter=active&page=2 */
+/* list with search, status filter and paging: GET /api/members?q=ali&filter=active&page=2
+   ?all=1 returns every filtered row on one page (the CSV export). total_all and has_sample let the page
+   tell "no members yet" from "no match" and show the sample-data banner. */
 membersRouter.get('/', requireStaff, async (req, res) => {
+  const all = req.query.all === '1';
   const out = await call(req, (G) => {
     const R = G.memberRows({ q: req.query.q, filter: req.query.filter });
-    return { counts: R.counts, ...G.paginate(R.rows, req.query.page, PER_PAGE) };
+    const pg = all ? G.paginate(R.rows, 1, Math.max(1, R.rows.length)) : G.paginate(R.rows, req.query.page, PER_PAGE);
+    return { counts: R.counts, ...pg, total_all: G.values('clients').length, has_sample: G.hasSample() };
   });
   res.json(out);
+});
+
+/* id and name of every member, A to Z: the shop's sell dialog needs the names only */
+membersRouter.get('/names', requireStaff, async (req, res) => {
+  res.json(await call(req, (G) => G.values('clients')
+    .map((c) => ({ id: c.id, name: c.name }))
+    .sort((a, b) => a.name.localeCompare(b.name))));
 });
 
 membersRouter.post('/', requireStaff, async (req, res) => {

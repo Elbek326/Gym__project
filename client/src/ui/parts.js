@@ -1,4 +1,5 @@
 import G from '../core/gym.js';
+import { session } from '../state.js';
 import { esc } from './html.js';
 import { ic } from './icons.js';
 
@@ -59,13 +60,14 @@ export function tile(label, val, dot, sub, unit) {
   return '<div class="tile"><div class="cap"><i class="' + (dot || '') + '"></i>' + label + '</div><div class="v">' + val + (unit ? '<small>' + unit + '</small>' : '') + '</div>' + (sub ? '<div class="s">' + sub + '</div>' : '') + '</div>';
 }
 
-export function sampleBanner() {
-  var admin = G.me().role === 'admin', n = G.values('clients').length;
+/* total = how many members there are, hasSample = the sample data is loaded (both come with the page's data) */
+export function sampleBanner(n, hasSample) {
+  var admin = session.user.role === 'admin';
   if (n === 0) {
     return '<section class="card"><div class="empty"><b>Your gym is empty</b>Add your first member, or load sample data to see how everything looks.<div class="row-actions" style="justify-content:center;margin-top:14px"><button class="btn btn-primary" data-act="addMember">' + ic('plus') + 'Add first member</button>' +
       (admin ? '<button class="btn" data-act="loadSample">Load sample data</button>' : '') + '</div></div></section>';
   }
-  if (G.hasSample()) {
+  if (hasSample) {
     return '<div class="banner" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:200px">You are looking at sample data. Remove it before you start using the real thing.</span>' + (admin ? '<button class="btn btn-sm" data-act="removeSample">Remove sample data</button>' : '') + '</div>';
   }
   return '';

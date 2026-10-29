@@ -1,4 +1,5 @@
 import G from '../core/gym.js';
+import { api, qs } from '../api.js';
 import { ui } from '../state.js';
 import { hbars } from '../ui/charts.js';
 import { esc } from '../ui/html.js';
@@ -6,8 +7,9 @@ import { ic } from '../ui/icons.js';
 import { cap1, money, tile } from '../ui/parts.js';
 
 /* ---------- finance ---------- */
-export function pFinance() {
-  var fm = G.financeMonth(ui.fin.ym), t = fm.totals;
+export function loadFinance() { return api.get('/api/finance' + qs({ month: ui.fin.ym })); }
+export function pFinance(fm) {
+  var t = fm.totals;
   var days = Object.keys(fm.daily).sort();
   var cats = Object.keys(fm.byCat).map(function (k) { return { label: cap1(k), value: fm.byCat[k] }; }).sort(function (a, b) { return b.value - a.value; });
   var src = [{ label: 'Memberships', value: t.payments }, { label: 'Shop', value: t.sales }, { label: 'Other income', value: t.income }].filter(function (x) { return x.value > 0; });
