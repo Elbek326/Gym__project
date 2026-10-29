@@ -1,7 +1,8 @@
 # Gym Manager Pro — frontend (client)
 
-Vite + vanilla JS (ES modullar). Hozircha backend yo'q: ma'lumotlar faqat brauzer `localStorage` ida
-(`gympro.v1` kaliti) saqlanadi. Zaxira nusxani Harakatlar jurnali sahifasidan yuklab oling.
+Vite + vanilla JS (ES modullar). Ma'lumotlar serverda (PostgreSQL); brauzerda baza nusxasi yo'q, faqat
+sozlamalar (`gym_prefs`). Dev rejimida `/api` so'rovlari Vite orqali `http://localhost:3000` ga yo'naltiriladi:
+serverni ham ishga tushiring (`npm --prefix server run dev`).
 
 ## Ishga tushirish
 
