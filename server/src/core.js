@@ -55,8 +55,19 @@ export async function reload() {
   loaded = true;
 }
 
+/* NOT NULL columns that older records may lack (sample data has no `by`, old backups may miss a note):
+   they get the same default as the migration gives them. Nullable columns stay null. */
+const DEFAULTS = {
+  note: '', by: '', detail: '', days: '', status: 'active', debt: 0, sample: false,
+  total_sessions: 0, used_sessions: 0, price: 0, cost: 0, stock: 0, is_active: true
+};
 function values(t, rec) {
-  return COLUMNS[t].map((c) => (rec[c] === undefined ? (c === 'sample' ? false : null) : rec[c]));
+  return COLUMNS[t].map((c) => {
+    const v = rec[c];
+    if (v != null) return v;
+    if (c === 'category') return t === 'products' ? 'General' : '';
+    return c in DEFAULTS ? DEFAULTS[c] : null;
+  });
 }
 
 async function upsert(db, t, rec) {
