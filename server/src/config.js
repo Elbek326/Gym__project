@@ -5,8 +5,19 @@ function required(name) {
   return v;
 }
 
+const env = process.env.NODE_ENV || 'development';
+
+/* how many proxies sit in front of the app. On Render (and most hosts) one load balancer adds X-Forwarded-For;
+   trusting exactly one hop gives the real client IP for sign-in throttling and cannot be spoofed further. */
+function trustProxy() {
+  const v = process.env.TRUST_PROXY;
+  if (v === undefined || v === '') return env === 'production' ? 1 : 'loopback';
+  return /^\d+$/.test(v) ? Number(v) : v;
+}
+
 export const config = {
-  env: process.env.NODE_ENV || 'development',
+  env,
   port: Number(process.env.PORT) || 3000,
+  trustProxy: trustProxy(),
   get databaseUrl() { return required('DATABASE_URL'); }
 };

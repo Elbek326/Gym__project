@@ -1,6 +1,10 @@
 import express from 'express';
 import helmet from 'helmet';
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { query } from './db.js';
+import { config } from './config.js';
 import { authRouter } from './auth/routes.js';
 import { jsonOnlyWrites, loadUser } from './auth/middleware.js';
 import { membersRouter } from './api/members.js';
@@ -14,7 +18,7 @@ import { adminRouter } from './api/admin.js';
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
-  app.set('trust proxy', 'loopback');   /* behind a local reverse proxy (deploy), req.ip is the real client IP */
+  app.set('trust proxy', config.trustProxy);   /* behind the host's proxy, req.ip is the real client IP (see config.js) */
   app.use(helmet());
   app.use('/api', jsonOnlyWrites);
   /* request bodies: 1 MB is plenty (a member photo is ~40 KB); only a backup restore may be large */
@@ -41,6 +45,18 @@ export function createApp() {
   });
 
   app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
+
+  /* the built web app (client/dist): same origin as the API, so the session cookie just works.
+     Hashed asset files are cached for a year; index.html never, so a new deploy shows at once. */
+  const dist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../client/dist');
+  if (existsSync(path.join(dist, 'index.html'))) {
+    app.use('/assets', express.static(path.join(dist, 'assets'), { immutable: true, maxAge: '1y' }));
+    app.use(express.static(dist, { index: false, maxAge: 0 }));
+    app.get(/^(?!\/api\/).*/, (req, res) => {
+      res.setHeader('Cache-Control', 'no-cache');
+      res.sendFile(path.join(dist, 'index.html'));
+    });
+  }
 
   /* last resort: never leak stack traces to the browser */
   app.use((err, req, res, next) => {   // eslint-disable-line no-unused-vars
