@@ -83,6 +83,41 @@ Maqsad: artifactni Node.js + Express + PostgreSQL web dasturga o'tkazish. Reja: 
 - A'zo faqat o'z profilini oladi.
 - Test bazasi: hozir testlar asosiy `gym` bazasida vaqtinchalik `zt...` foydalanuvchilar bilan ishlaydi. Bosqich 5 da alohida `gym_test` bazasini o'ylab ko'rish kerak.
 
+## Sessiya: 2026-10-29
+
+- **Login sahifasi va nom** (`94f1535`, artifact v10, `7dae501`):
+  - ilova nomi endi "Bek Sport Gym";
+  - login sahifasida xush kelibsiz matni, admin/admin123 ko'rsatmasi olib tashlandi;
+  - til tugmalari EN|UZ.
+  - `legacy/` endi jonli artifact (v10) bilan bir xil saqlanadi.
+- `gym_test` baza yaratildi. **5.1** (`c9441b8`): testlar faqat `gym_test` da ishlaydi; nom boshqacha bo'lsa ishga tushmaydi.
+- **5.2** (`d7c67a1`): `server/src/core.js`.
+  - Core butun bazani xotirada ushlaydi, chaqiruvlar navbat bilan.
+  - O'zgarishlar bitta tranzaksiyada saqlanadi; xatoda xotira qayta yuklanadi.
+  - Core'ga `setSessionUser()` qo'shildi.
+  - Trade-off: bitta server jarayoni (bitta zal uchun yetarli).
+- **5.3–5.6** (`2a839e0`, `13e218d`, `6aa4ce9`, `ceb7e70`): to'liq API (jadvali `server/README.md` da).
+  - a'zolar, obuna, check-in, pul, o'lchamlar;
+  - do'kon, moliya;
+  - dashboard, tahlil, reyting, audit;
+  - admin: foydalanuvchilar, zaxira/tiklash, namuna.
+  - 52 server testi.
+  - Topilgan va tuzatilgan: namunaviy sotuvlarda `by` yo'q edi. Endi majburiy ustunlarga standart qiymat yoziladi (eski zaxiralar uchun ham).
+- **Bosqich 5 tayyor.**
+
+### Sessiya oxiridagi holat
+- **Bosqich 6 jarayonda** (frontend'ni API'ga ulash). Agent 6a ni boshlagan; commit qilinmagan o'zgarishlar:
+  - `client/src/api.js` (yangi), `client/src/persist.js` (o'chirilgan, stage qilingan);
+  - `client/src/state.js`, `client/vite.config.js`, `.claude/launch.json`;
+  - `server/src/api/members.js`, `server/test/members.api.test.js` (ehtimol `?all=1` yoki `/names`).
+- **Push:** `f8bfea6` dan keyingi barcha commit'lar push qilinmagan. GitHub'ga tarmoqdan ulanib bo'lmayotgan edi.
+
+### Keyingi sessiya shu bilan boshlanadi
+1. `git status` va `git log`: agent 6a/6b/6c ni commit qilganmi? Qilmagan bo'lsa, o'zgarishlarni ko'rib chiqib, bosqich 6 ni davom ettirish.
+2. Ikkala serverni ishga tushirib (`.claude/launch.json`: "server" va "client"), ilovani brauzerda tekshirish.
+3. `git push` (avval `cd /d "C:\Users\Rustamov Elbek\Desktop\Gym_project_code"`).
+4. Keyin bosqich 7: artifact zaxirasini PostgreSQL'ga import.
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
