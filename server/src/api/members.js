@@ -64,6 +64,34 @@ membersRouter.post('/:id/unfreeze', requireStaff, async (req, res) => {
   res.json(await call(req, (G) => G.unfreezeClient(req.params.id)));
 });
 
+/* check-in: the core checks frozen, plan, sessions left, expiry, once per day and training days;
+   the database also refuses a second visit on the same day if two desks press at once */
+membersRouter.post('/:id/checkin', requireStaff, async (req, res) => {
+  res.status(201).json(await call(req, (G) => G.checkIn(req.params.id)));
+});
+
+/* money: debt is the source of truth, every change is also a transaction row */
+function moneyFields(b = {}) { return { amount: b.amount, category: b.category, note: b.note }; }
+membersRouter.post('/:id/payments', requireStaff, async (req, res) => {
+  res.status(201).json(await call(req, (G) => G.addPayment(req.params.id, moneyFields(req.body))));
+});
+membersRouter.post('/:id/charges', requireStaff, async (req, res) => {
+  res.status(201).json(await call(req, (G) => G.addCharge(req.params.id, moneyFields(req.body))));
+});
+membersRouter.post('/:id/debt-adjustments', requireStaff, async (req, res) => {
+  const b = req.body || {};
+  await call(req, (G) => G.adjustDebt(req.params.id, { debt: b.debt, note: b.note }));
+  res.status(201).json({ ok: true });
+});
+
+/* body measurements */
+membersRouter.post('/:id/measurements', requireStaff, async (req, res) => {
+  const b = req.body || {};
+  const f = {};
+  for (const k of ['weight', 'height', 'body_fat', 'chest', 'waist', 'bicep', 'note']) f[k] = b[k];
+  res.status(201).json(await call(req, (G) => G.addMeasurement(req.params.id, f)));
+});
+
 /* the member's own login account (username only, never the password) */
 membersRouter.get('/:id/login', requireStaff, async (req, res) => {
   res.json({ login: await call(req, (G) => G.memberLogin(req.params.id)) });
