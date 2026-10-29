@@ -14,7 +14,7 @@ parol hash'i hech qachon brauzerga bormaydi.
 | 4 | Serverda auth (sessiya cookie, bloklash, rollar) | Hash brauzerga bormaydi | tayyor |
 | 5 | API: biznes qoidalar serverga | Barcha amallar API orqali | tayyor |
 | 6 | Frontend'ni API'ga ulash | Ikki brauzer bir vaqtda, ma'lumot yo'qolmaydi | tayyor |
-| 7 | Artifact zaxira JSON'ini PostgreSQL'ga import | Eski ma'lumot yangi tizimda | — |
+| 7 | ~~Artifact zaxira JSON'ini PostgreSQL'ga import~~ | Kerak emas: tizim toza bazadan boshlanadi (2026-10-29 qaror) | bekor |
 | 8 | Deploy: domen, HTTPS, Docker, kundalik zaxira | Internet orqali ishlaydi | — |
 | 9 | Ixtiyoriy: PWA, real-time (SSE), monitoring | — | — |
 
