@@ -275,6 +275,8 @@ var GYM = (function () {
     return u;
   }
   function restoreSession(id) { if (id && S.users[id] && roleOk(S.users[id]) && !loginBlock(S.users[id])) { sessionUserId = id; return S.users[id]; } return null; }
+  /* the server acts for one signed-in user per request: set before the call, cleared after (no audit row) */
+  function setSessionUser(id) { sessionUserId = id || null; }
   function logout() { var u = me(); if (u && !Store.readOnly) { try { audit('LOGOUT', u.username); } catch (e) { /* ignore */ } } sessionUserId = null; }
 
   async function changeOwnPassword(current, next, confirm) {
@@ -1006,7 +1008,7 @@ var GYM = (function () {
     applyRemote: applyRemote, shardItems: shardItems, allDocPaths: allDocPaths, SHARD_OF: function (t) { return !!SHARDED[t]; },
     now: now, setClock: setClock, addDays: addDays, diffDays: diffDays, dowOf: dowOf, isDate: isDate,
     fmtDate: fmtDate, fmtDT: fmtDT, fmtMoney: fmtMoney, monthLabel: monthLabel, monthsBetween: monthsBetween, uid: uid,
-    me: me, isStaff: isStaff, login: login, logout: logout, restoreSession: restoreSession, requireUser: requireUser, requireStaff: requireStaff,
+    me: me, isStaff: isStaff, login: login, logout: logout, restoreSession: restoreSession, setSessionUser: setSessionUser,requireUser: requireUser, requireStaff: requireStaff,
     profileData: profileData, memberLogin: memberLogin, resetMemberPassword: resetMemberPassword, listAudit: listAudit,
     ensureDefaultAdmin: ensureDefaultAdmin, migratePasswords: migratePasswords, hashPassword: hashPassword, verifyPassword: verifyPassword,
     changeOwnPassword: changeOwnPassword, listUsers: listUsers, addUser: addUser, setRole: setRole, deleteUser: deleteUser, resetPassword: resetPassword,

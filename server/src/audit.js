@@ -1,9 +1,7 @@
-import GYM from '../../client/src/core/gym.js';
-import { query } from './db.js';
+import { run } from './core.js';
 
-/* one audit row, same shape and time format (Asia/Tashkent) as the core writes */
-export async function audit(action, detail, by, db = { query }) {
-  const n = GYM.now();
-  await db.query('INSERT INTO audit (id, d, action, detail, created_at, by) VALUES ($1, $2, $3, $4, $5, $6)',
-    [GYM.uid(), n.date, action, String(detail || '').slice(0, 300), n.iso, by || 'anonymous']);
+/* one audit row written by the core itself (same shape, Asia/Tashkent time), so the in-memory copy and the
+   database stay the same. `userId` is who did it; null = not signed in ('anonymous'). */
+export function audit(action, detail, userId = null) {
+  return run(userId, (G) => G.audit(action, String(detail || '').slice(0, 300)));
 }
