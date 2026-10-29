@@ -5,6 +5,8 @@ import { authRouter } from './auth/routes.js';
 import { jsonOnlyWrites, loadUser } from './auth/middleware.js';
 import { membersRouter } from './api/members.js';
 import { measurementsRouter } from './api/measurements.js';
+import { shopRouter } from './api/shop.js';
+import { financeRouter } from './api/finance.js';
 
 /* builds the Express app without listening, so tests can use it directly */
 export function createApp() {
@@ -19,6 +21,8 @@ export function createApp() {
   app.use('/api/auth', authRouter);
   app.use('/api/members', membersRouter);
   app.use('/api/measurements', measurementsRouter);
+  app.use('/api/shop', shopRouter);
+  app.use('/api/finance', financeRouter);
 
   /* liveness and database check */
   app.get('/api/health', async (req, res) => {
