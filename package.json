@@ -5,7 +5,7 @@
   "description": "Bek Sport Gym: one server that serves the web app (client/dist) and the API (server/)",
   "engines": { "node": ">=22" },
   "scripts": {
-    "build": "npm --prefix client ci && npm --prefix client run build && npm --prefix server ci --omit=dev",
+    "build": "npm --prefix client ci --include=dev && npm --prefix client run build && npm --prefix server ci --omit=dev",
     "start": "npm --prefix server start",
     "test": "npm --prefix client test && npm --prefix server test"
   }
