@@ -2,11 +2,13 @@ import { createApp } from './app.js';
 import { config } from './config.js';
 import { closePool } from './db.js';
 import { runMigrations } from './migrate.js';
-import { ensureFirstAdmin } from './seed.js';
+import { applyEnvAdmin, ensureFirstAdmin } from './seed.js';
 
 /* on every start: bring the database schema up to date, and on a brand-new database create the first admin */
 async function start() {
   await runMigrations((m) => console.log(m));
+  const fromEnv = await applyEnvAdmin();
+  if (fromEnv) console.log(`Admin from ADMIN_PASSWORD: ${fromEnv}. Sign in, then remove ADMIN_PASSWORD from the environment.`);
   const pw = await ensureFirstAdmin({ random: config.env === 'production' });
   if (pw) {
     console.log('================================================================');

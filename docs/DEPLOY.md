@@ -41,6 +41,19 @@ Server har ishga tushganda migratsiyalarni qo'llaydi. Baza bo'sh bo'lsa, birinch
 
 Tekshiruv: `https://<nom>.onrender.com/api/health` → `{"ok":true,"db":true}`.
 
+## Adminni environment orqali berish (ixtiyoriy)
+
+Login va parolni o'zingiz tanlamoqchi bo'lsangiz yoki parolni unutgan bo'lsangiz, Render → Environment bo'limiga qo'shing:
+
+| KEY | VALUE |
+|---|---|
+| `ADMIN_USERNAME` | login, masalan `admin` (yozilmasa `admin` bo'ladi); 3–30 ta harf, raqam, `.`, `-`, `_` |
+| `ADMIN_PASSWORD` | kamida 8 belgi |
+
+Server qayta ishga tushganda shu akkaunt admin bo'ladi: bo'lmasa yaratiladi, bo'lsa paroli almashtiriladi.
+
+**Saytga kirgandan keyin `ADMIN_PASSWORD` ni o'chiring.** U turgan paytda har qayta ishga tushishda parol shu qiymatga qaytadi.
+
 ## Bepul tarif cheklovlari
 
 - Render free: 15 daqiqa so'rov bo'lmasa uxlaydi, birinchi ochilish 30–60 soniya. Ma'lumot yo'qolmaydi, chunki u Neon'da turadi.
