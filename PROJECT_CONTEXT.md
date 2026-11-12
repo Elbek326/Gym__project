@@ -192,6 +192,22 @@ Eslatma: ma'lumot yoki qoidaga oid o'zgarishlar saytda server qismini ham talab 
 - Foydalanuvchi birinchi yangilanishni aytadi → artifactga qo'shiladi.
 - Tekshirish: Render'da `ADMIN_PASSWORD` o'chirilganmi.
 
+## Sessiya: 2026-11-12 (davomi)
+
+- **"Zal haqida"** — artifact v11 (`8b933ad`, `legacy/` sinxron). **Saytga (client/) hali o'tkazilmagan.**
+  - Login sahifasida, xush kelibsiz matni ostida tugma; kirgandan keyin yon menyuning oxirida (hamma rollar uchun).
+  - Oyna: manzil (+ mo'ljal, xarita havolasi), ish vaqti jadvali, telefon (`tel:`), Telegram/Instagram.
+  - Ma'lumotlar `GYM_INFO` obyektida (`legacy/gym-artifact.html` ~2212-qator): hozircha namuna qiymatlar.
+    - Bo'sh ixtiyoriy maydonlar ko'rsatilmaydi; havolalar faqat `https://` bo'lsa chiqadi.
+  - `openModal` ga `info: true` (faqat "Yopish" tugmasi); yangi ikonkalar: info, pin, clock, phone, link.
+  - Sinalmagan: a'zo roli bilan; 4 ta look alohida.
+
+### Keyingi sessiya shu bilan boshlanadi
+1. Foydalanuvchi zal ma'lumotlarini yuboradi: manzil, mo'ljal, ish vaqti, telefon, xarita, Telegram/Instagram.
+   → `GYM_INFO` ga kiritib, artifactni yangilash (v12) + `legacy/` sinxron.
+2. Foydalanuvchi "saytga o'tkaz" desa → `client/` ga o'tkazish (login sahifasi, sidebar, modal `info` rejimi, i18n, ikonkalar).
+   - Ma'lumot statik bo'lsa, server kerak emas.
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
