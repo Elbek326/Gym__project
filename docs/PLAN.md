@@ -15,7 +15,7 @@ parol hash'i hech qachon brauzerga bormaydi.
 | 5 | API: biznes qoidalar serverga | Barcha amallar API orqali | tayyor |
 | 6 | Frontend'ni API'ga ulash | Ikki brauzer bir vaqtda, ma'lumot yo'qolmaydi | tayyor |
 | 7 | ~~Artifact zaxira JSON'ini PostgreSQL'ga import~~ | Kerak emas: tizim toza bazadan boshlanadi (2026-10-29 qaror) | bekor |
-| 8 | Deploy: Render (ilova) + Neon (baza), HTTPS; kundalik zaxira qoldi | Internet orqali ishlaydi | ishlayapti (8.5 zaxira qoldi) |
+| 8 | Deploy: Render (ilova) + Neon (baza), HTTPS. Zaxira: Neon avtomatik + ilovadagi "Zaxira nusxa" tugmasi (qo'lda) | Internet orqali ishlaydi | tayyor |
 | 9 | Ixtiyoriy: PWA, real-time (SSE), monitoring | — | — |
 
 Eslatma: a'zolarning ism va telefonlari shaxsiy ma'lumot. Ishga tushirishdan oldin
