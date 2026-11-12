@@ -168,6 +168,30 @@ Maqsad: artifactni Node.js + Express + PostgreSQL web dasturga o'tkazish. Reja: 
 3. Render Logs'dagi birinchi admin paroli bilan kirish → darhol parolni almashtirish.
 4. `/api/health` tekshiruvi; keyin 8.5 (kundalik zaxira: Neon'da yoki pg_dump).
 
+## Sessiya: 2026-10-30 — 2026-11-12
+
+- **Render build tuzatildi** (`7f71ca7`): `NODE_ENV=production` da `npm ci` Vite'ni o'rnatmas edi, `--include=dev` qo'shildi.
+- **Admin environment orqali** (`0743a73`): `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
+  - Akkaunt bo'lmasa yaratiladi, bo'lsa paroli almashtiriladi va sessiyalari tugaydi.
+  - Parol log'ga va audit'ga yozilmaydi.
+  - Kirgandan keyin `ADMIN_PASSWORD` Render'dan o'chirilishi kerak.
+  - 58 server testi.
+- **Sayt ishga tushdi:** Render (ilova) + Neon (PostgreSQL, Frankfurt). Bosqich 8 tayyor.
+- **Zaxira:** alohida kundalik zaxira sozlanmadi (foydalanuvchi qarori). Neon'ning o'zi + ilovadagi "Zaxira nusxa" tugmasi (qo'lda, haftada bir).
+- **Asosiy reja (0–8) yakunlandi.** 9-bosqich ixtiyoriy.
+
+### Yangi ish tartibi (2026-11-12)
+1. Foydalanuvchi o'zgarishni aytadi.
+2. Claude avval **artifactga** qo'shib publish qiladi (ko'rib chiqish uchun). `legacy/` ham sinxron saqlanadi.
+3. Foydalanuvchi aytgandan keyingina loyiha fayllariga (`client/`, kerak bo'lsa `server/`) testlar bilan kiritiladi va commit qilinadi.
+4. Foydalanuvchi push qiladi, Render o'zi deploy qiladi.
+
+Eslatma: ma'lumot yoki qoidaga oid o'zgarishlar saytda server qismini ham talab qiladi.
+
+### Keyingi sessiya shu bilan boshlanadi
+- Foydalanuvchi birinchi yangilanishni aytadi → artifactga qo'shiladi.
+- Tekshirish: Render'da `ADMIN_PASSWORD` o'chirilganmi.
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
