@@ -7,7 +7,7 @@ Claude Artifact'dan to'liq web dasturga o'tkazilmoqda.
 
 | Papka | Nima |
 |---|---|
-| `legacy/` | Artifact'ning jonli versiyasi (v12) bilan bir xil nusxa. Artifact o'zgartirilsa, shu ham yangilanadi |
+| `legacy/` | Artifact'ning jonli versiyasi (v13) bilan bir xil nusxa. Artifact o'zgartirilsa, shu ham yangilanadi |
 | `client/` | Frontend: Vite + vanilla JS (bosqich 1) |
 | `server/` | Backend: Node.js + Express + PostgreSQL (bosqich 3) |
 | `docs/` | Reja va hujjatlar |
