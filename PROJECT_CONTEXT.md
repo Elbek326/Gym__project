@@ -226,6 +226,24 @@ Eslatma: ma'lumot yoki qoidaga oid o'zgarishlar saytda server qismini ham talab 
    - login sahifasi, sidebar, modal `info` rejimi;
    - ikonkalar, i18n, `GYM_INFO`.
 
+## Sessiya: 2026-11-17
+
+- **Ish vaqti:** artifact v13 (`704962d`, `legacy/` sinxron): Dushanba–Shanba 14:30–24:00, Yakshanba dam olish kuni.
+  - Yakshanba dam olish ekani taxmin, foydalanuvchi tasdiqlamagan.
+- **"Zal haqida"** hali saytga (client/) o'tkazilmagan.
+- **Face ID (yuz bilan check-in) muhokama qilindi, qaror kutilmoqda** (foydalanuvchi "keyin tanlayman" dedi):
+  - **Artifactda qurib bo'lmaydi:** bu akkauntning artifact imkoniyatlarida kamera yo'q (`permissions` ro'yxatida faqat artifact, assets, comments, db, dictation, downloads, files, mcp, room, sample, self, user). Shuning uchun "avval artifact" tartibi bu funksiyaga to'g'ri kelmaydi.
+  - **Taklif qilingan dizayn:**
+    - profilda yuzni ro'yxatga olish (3–5 kadr; rasm emas, 128 sonli descriptor saqlanadi; rozilik belgisi; o'chirish imkoniyati);
+    - qabulxonada check-in sahifasi (doimiy kamera; tanish brauzerda, tashqi xizmatsiz);
+    - xodim tasdiqlaydi (tavsiya) yoki to'liq avtomatik.
+  - Ochiq savollar: saytda to'g'ridan qurilsinmi? Tasdiqlash usuli qanday?
+  - Eslatmalar: biometrik ma'lumot (rozilik kerak); qabulxonada veb-kamera yoki planshet kerak.
+
+### Keyingi sessiya shu bilan boshlanadi
+1. Face ID bo'yicha qaror: saytda qurilsinmi, tasdiqlash usuli qanday.
+2. "Zal haqida" → "saytga o'tkaz" kutilmoqda.
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
