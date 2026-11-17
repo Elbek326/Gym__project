@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/copy-models.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/copy-models.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
@@ -15,6 +17,7 @@
     "vitest": "^5.0.5"
   },
   "dependencies": {
+    "@vladmandic/face-api": "^1.7.15",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

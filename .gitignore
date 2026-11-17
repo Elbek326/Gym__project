@@ -27,3 +27,6 @@ Thumbs.db
 *.sql.gz
 backups/
 gym_*.json
+
+# face-api model binaries: copied from node_modules by client/scripts/copy-models.mjs
+client/public/models/
