@@ -2,7 +2,9 @@ import G from './core/gym.js';
 import { api, enc, qs } from './api.js';
 import { refreshAuditList } from './pages/audit.js';
 import { openMemberForm, planFields, readPlan, refreshMemberList, wirePlan } from './pages/members.js';
+import { openEnroll } from './face/enroll.js';
 import { aboutGym } from './gym-info.js';
+import { reloadFaces, retryFaceCheckin } from './pages/facecheckin.js';
 import { hooks, ui } from './state.js';
 import { csvText, downloadFile, saveXlsx } from './ui/export.js';
 import { $, esc } from './ui/html.js';
@@ -41,6 +43,15 @@ export const ACT = {
   toggleVisits: function () { ui.det.allVisits = !ui.det.allVisits; repaint(); },
   toggleTx: function () { ui.det.allTx = !ui.det.allTx; repaint(); },
   about: function () { aboutGym(); },
+  faceRetry: function () { retryFaceCheckin(); },
+  faceReload: function () { return reloadFaces(); },
+  faceEnroll: function (el) { openEnroll(memberById(el.dataset.id), render); },
+  faceDelete: async function (el) {
+    var c = memberById(el.dataset.id);
+    if (await confirmBox({ title: 'Delete face data', html: tpl('Delete the saved face data of {0}? They can be enrolled again later.', [c.name]), confirm: 'Delete face data', danger: true })) {
+      try { await api.del(mpath(c.id, '/face')); toast('Face data deleted'); render(); } catch (e) { fail(e); }
+    }
+  },
   logout: function () { doLogout(); },
   theme: function () { toggleTheme(); },
   setLang: function (el) { setPref('lang', el.dataset.v); },

@@ -11,6 +11,34 @@ import I18N from './i18n.js';
     "About the gym": "Zal haqida", "Address": "Manzil", "Working hours": "Ish vaqti", "Phone": "Telefon",
     "Show on map": "Xaritada ko'rish",
 
+    /* face check-in and Face ID */
+    "Face check-in": "Yuz bilan kirish", "Face ID": "Yuz ID", "Enrol face": "Yuzni ro'yxatga olish", "Re-enrol": "Qayta ro'yxatga olish",
+    "Delete face data": "Yuz ma'lumotini o'chirish", "Enrolled": "Ro'yxatga olingan", "Not enrolled": "Ro'yxatga olinmagan", "Shots": "Kadrlar", "Agreed on": "Rozilik sanasi",
+    "The member can check in by face once enrolled.": "Ro'yxatga olingach, a'zo yuzi bilan kira oladi.",
+    "Reload list": "Ro'yxatni yangilash", "Loading members": "A'zolar yuklanmoqda", "Could not load the members": "A'zolarni yuklab bo'lmadi",
+    "Stand in front of the camera, one person at a time. The camera is used only on this page.": "Kamera oldida turing, bir vaqtda bitta odam. Kamera faqat shu sahifada ishlaydi.",
+    "Not recognised": "Tanilmadi", "One person at a time": "Bir vaqtda bitta odam", "Recognising": "Aniqlanmoqda", "Checked in": "Kirdi",
+    "No member has enrolled a face yet.": "Hali birorta a'zo yuzini ro'yxatdan o'tkazmagan.",
+    "Starting the camera": "Kamera ishga tushmoqda", "Loading face models": "Yuz modellari yuklanmoqda",
+    "Could not load the face models. Check the connection and try again.": "Yuz modellarini yuklab bo'lmadi. Ulanishni tekshirib, qayta urinib ko'ring.",
+    "Camera not available in this browser.": "Bu brauzerda kamera mavjud emas.", "The camera needs a secure (https) connection.": "Kamera xavfsiz (https) ulanishni talab qiladi.",
+    "Camera permission denied. Allow the camera for this site and try again.": "Kameraga ruxsat berilmadi. Bu sayt uchun kameraga ruxsat berib, qayta urinib ko'ring.",
+    "No camera found on this device.": "Bu qurilmada kamera topilmadi.",
+    "The camera is busy or not working. Close other apps that use it and try again.": "Kamera band yoki ishlamayapti. Kameradan foydalanayotgan boshqa ilovalarni yoping va qayta urinib ko'ring.",
+    "Camera not available.": "Kamera mavjud emas.",
+    "Start": "Boshlash",
+    "The member agreed to face check-in. Only face measurements are stored, not photos.": "A'zo yuz bilan kirishga rozi. Faqat yuz o'lchamlari saqlanadi, rasm emas.",
+    "Tick the box, then press Start and look at the camera.": "Belgini qo'ying, so'ng «Boshlash» ni bosing va kameraga qarang.",
+    "Tick the box first: the member must agree to face check-in.": "Avval belgini qo'ying: a'zo yuz bilan kirishga rozi bo'lishi shart.",
+    "The camera is still starting. Try again in a moment.": "Kamera hali ishga tushmoqda. Birozdan so'ng qayta urinib ko'ring.",
+    "No clear face was found. Face the camera in good light and try again.": "Aniq yuz topilmadi. Yorug' joyda kameraga qarab, qayta urinib ko'ring.",
+    "Face detection failed. Reload the page and try again.": "Yuzni aniqlab bo'lmadi. Sahifani yangilab, qayta urinib ko'ring.",
+    "Look at the camera": "Kameraga qarang", "No face found. Look at the camera": "Yuz topilmadi. Kameraga qarang", "One person at a time.": "Bir vaqtda bitta odam.",
+    "Come a little closer": "Biroz yaqinroq keling", "The face changed. Keep the same person in front of the camera": "Yuz almashdi. Kamera oldida bir xil odam turishi kerak",
+    "Face saved": "Yuz saqlandi", "Face data deleted": "Yuz ma'lumoti o'chirildi",
+    "Take 1 to 5 face shots.": "1 tadan 5 tagacha yuz kadrini oling.", "The face data is not valid. Try again.": "Yuz ma'lumoti yaroqsiz. Qayta urinib ko'ring.",
+    "The member must agree to face check-in first.": "Avval a'zo yuz bilan kirishga rozi bo'lishi kerak.",
+
     /* navigation and pages */
     "Dashboard": "Boshqaruv paneli", "Members": "A'zolar", "Member": "A'zo", "Shop": "Do'kon", "Finance": "Moliya", "Analytics": "Tahlil",
     "Rankings": "Reyting", "Audit Log": "Harakatlar jurnali", "User Roles": "Foydalanuvchi rollari", "My Password": "Mening parolim", "Settings": "Sozlamalar",
@@ -210,7 +238,7 @@ import I18N from './i18n.js';
 
     /* audit action codes */
     "LOGIN": "KIRDI", "LOGIN_FAILED": "KIRISH XATO", "LOGOUT": "CHIQDI", "PASSWORD_CHANGED": "PAROL O'ZGARDI", "PASSWORD_RESET": "PAROL TIKLANDI", "USER_ADDED": "FOYDALANUVCHI QO'SHILDI",
-    "USER_DELETED": "FOYDALANUVCHI O'CHIRILDI", "ROLE_CHANGED": "ROL O'ZGARDI", "MEMBER_ADDED": "A'ZO QO'SHILDI", "MEMBER_UPDATED": "A'ZO YANGILANDI", "MEMBER_DELETED": "A'ZO O'CHIRILDI",
+    "USER_DELETED": "FOYDALANUVCHI O'CHIRILDI", "ROLE_CHANGED": "ROL O'ZGARDI", "MEMBER_ADDED": "A'ZO QO'SHILDI", "MEMBER_UPDATED": "A'ZO YANGILANDI", "MEMBER_DELETED": "A'ZO O'CHIRILDI", "FACE_ENROLLED": "YUZ RO'YXATGA OLINDI", "FACE_DELETED": "YUZ MA'LUMOTI O'CHIRILDI",
     "SUBSCRIPTION_ADDED": "ABONEMENT QO'SHILDI", "SUBSCRIPTION_EXTENDED": "ABONEMENT UZAYTIRILDI", "CHECK_IN": "KIRISH", "FREEZE": "MUZLATISH", "UNFREEZE": "MUZLATISH YECHILDI",
     "PAYMENT": "TO'LOV", "CHARGE": "HISOB", "DEBT_ADJUSTED": "QARZ TUZATILDI", "MEASUREMENT_ADDED": "O'LCHAM QO'SHILDI", "MEASUREMENT_DELETED": "O'LCHAM O'CHIRILDI",
     "PRODUCT_ADDED": "MAHSULOT QO'SHILDI", "PRODUCT_UPDATED": "MAHSULOT YANGILANDI", "PRODUCT_DELETED": "MAHSULOT O'CHIRILDI", "SALE": "SOTUV", "RESTOCK": "ZAXIRA",
@@ -279,6 +307,10 @@ import I18N from './i18n.js';
   pat(/^(.+) \+(\d+), cost (.+) to (.+)$/, function (m) { return m[1] + " +" + m[2] + ", tannarx " + m[3] + " → " + m[4]; });
 
   /* counts and short phrases */
+  pat(/^(\d+) members? enrolled$/, function (m) { return m[1] + " a'zo ro'yxatga olingan"; });
+  pat(/^(.+?)\.? (\d)\/(\d)$/, function (m, T) { var h = T(m[1]); return h === m[1] ? null : h + ". " + m[2] + "/" + m[3]; });
+  pat(/^Shot (\d)\/(\d)\. Turn your head slightly\.$/, function (m) { return "Kadr " + m[1] + "/" + m[2] + ". Boshingizni biroz buring."; });
+  pat(/^Shot (\d)\/(\d)\.$/, function (m) { return "Kadr " + m[1] + "/" + m[2] + "."; });
   pat(/^(\d+) days? left$/, function (m) { return m[1] + " kun qoldi"; });
   pat(/^(\d+) sessions? left$/, function (m) { return m[1] + " mashg'ulot qoldi"; });
   pat(/^(\d+) of (\d+) sessions left\s*(.*)$/, function (m, T) {
@@ -363,6 +395,7 @@ import I18N from './i18n.js';
     "{0} o'chirilsinmi? Uning rasmi, abonementlari, tashriflari, o'lchamlari va logini olib tashlanadi. To'lovlar tarixi moliya yozuvlarida qoladi.";
   TP["Freeze {0} from today? Check-in is blocked while frozen, and the frozen days are added to the end date when you unfreeze."] =
     "{0} bugundan boshlab muzlatilsinmi? Muzlatilgan paytda kirish yopiq bo'ladi, muzlatish yechilganda esa muzlatilgan kunlar tugash sanasiga qo'shiladi.";
+  TP["Delete the saved face data of {0}? They can be enrolled again later."] = "{0} ning saqlangan yuz ma'lumoti o'chirilsinmi? Keyinroq qayta ro'yxatga olish mumkin.";
   TP["Delete {0}? Past sales stay in the records."] = "{0} o'chirilsinmi? O'tgan sotuvlar yozuvlarda qoladi.";
   TP["Delete the account {0}?"] = "{0} hisobi o'chirilsinmi?";
   TP["Replace {0} with the contents of {1}? This cannot be undone. Download a backup first if you are not sure."] =

@@ -1,6 +1,7 @@
 import { loadAnalytics, pAnalytics } from './analytics.js';
 import { loadAudit, pAudit, renderAuditList } from './audit.js';
 import { loadDashboard, pDashboard } from './dashboard.js';
+import { afterFaceCheckin, pFaceCheckin } from './facecheckin.js';
 import { loadFinance, pFinance } from './finance.js';
 import { loadMember, loadMyProfile, pMember, pMyProfile } from './member.js';
 import { loadMembers, pMembers, renderMemberList } from './members.js';
@@ -16,6 +17,7 @@ export const PAGES = {
   profile: { title: 'My Profile', icon: 'user', load: loadMyProfile, render: pMyProfile, acc: 'member' },
   members: { title: 'Members', icon: 'users', load: loadMembers, render: pMembers, after: renderMemberList },
   member: { title: 'Member', load: loadMember, render: pMember, parent: 'members' },
+  facecheckin: { title: 'Face check-in', icon: 'camera', render: pFaceCheckin, after: afterFaceCheckin },
   shop: { title: 'Shop', icon: 'bag', load: loadShop, render: pShop },
   finance: { title: 'Finance', icon: 'wallet', load: loadFinance, render: pFinance },
   analytics: { title: 'Analytics', icon: 'chart', load: loadAnalytics, render: pAnalytics },

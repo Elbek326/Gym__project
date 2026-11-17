@@ -16,7 +16,13 @@ async function loadProfile(id) {
   try { return await api.get('/api/members/' + enc(id)); }
   catch (e) { if (e.message === 'Member not found.') return null; throw e; }
 }
-export function loadMember() { return loadProfile(ui.route.id); }
+/* staff also see the Face ID status; if that call fails the rest of the profile still loads */
+export async function loadMember() {
+  var id = ui.route.id;
+  var r = await Promise.all([loadProfile(id), api.get('/api/members/' + enc(id) + '/face').catch(function () { return null; })]);
+  if (r[0]) r[0].face = r[1];
+  return r[0];
+}
 export function loadMyProfile() { return loadProfile(session.user.client); }
 export function pMember(P) { return memberView(P, false); }
 export function pMyProfile(P) { return memberView(P, true); }
@@ -72,8 +78,19 @@ function memberView(P, ro) {
     return '<tr><td>' + G.fmtDate(t.d) + '</td><td>' + typeChip(t.txn_type) + '</td><td class="r">' + money(t.amount) + '</td><td class="r hide-sm">' + (t.balance_after == null ? '—' : money(t.balance_after)) + '</td><td class="hide-sm small">' + esc((t.category ? t.category + '. ' : '') + (t.note || '')) + '</td></tr>';
   }).join('') + '</tbody></table></div>' + (txs.length > 12 ? '<div class="pager"><button class="btn btn-sm" data-act="toggleTx">' + (ui.det.allTx ? 'Show fewer' : 'Show all ' + txs.length) + '</button></div>' : '') : '<div class="empty"><b>No transactions yet</b></div>';
 
+  /* Face ID (staff only): enrolled or not, with the buttons; only measurements are stored, never a photo */
+  var fc = P.face, faceCard = '';
+  if (!ro && fc) {
+    var fb = '<button class="btn btn-sm btn-primary" data-act="faceEnroll" data-id="' + esc(c.id) + '">' + ic('camera') + (fc.enrolled ? 'Re-enrol' : 'Enrol face') + '</button>' +
+      (fc.enrolled ? '<button class="btn btn-sm btn-danger" data-act="faceDelete" data-id="' + esc(c.id) + '">' + ic('trash') + 'Delete face data</button>' : '');
+    faceCard = '<section class="card"><header><h3>Face ID</h3><span class="chip ' + (fc.enrolled ? 'ok' : 'plain') + '">' + (fc.enrolled ? 'Enrolled' : 'Not enrolled') + '</span></header><div class="body" style="display:flex;flex-direction:column;gap:12px">' +
+      (fc.enrolled ? '<dl class="kv small"><dt>Shots</dt><dd>' + fc.shots + '</dd><dt>Agreed on</dt><dd>' + (fc.consent_at ? G.fmtDate(String(fc.consent_at).slice(0, 10)) : '—') + '</dd></dl>'
+        : '<div class="small muted">The member can check in by face once enrolled.</div>') +
+      '<div class="row-actions">' + fb + '</div></div></section>';
+  }
   return frozenNote + head +
     '<div class="cols"><section class="card"><header><h3>Subscription</h3></header>' + subBody + subHist + '</section>' + money_card + '</div>' +
+    faceCard +
     '<section class="card"><header><h3>Measurements</h3>' + lineSpark(wts) + (ro ? '' : '<button class="btn btn-sm" data-act="addMeasure" data-id="' + esc(c.id) + '">' + ic('plus') + 'Add</button>') + '</header>' + mBody + '</section>' +
     '<div class="cols"><section class="card"><header><h3>Visits</h3><span class="muted small">' + visits.length + ' total</span></header>' + vBody + '</section>' +
     '<section class="card"><header><h3>Payments and charges</h3></header>' + tBody + '</section></div>';

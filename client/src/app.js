@@ -2,7 +2,9 @@ import { ACT } from './actions.js';
 import G from './core/gym.js';
 import I18N from './i18n/i18n.js';
 import { api, enc, net, qs } from './api.js';
+import { stopAllCameras } from './face/camera.js';
 import { refreshAuditList } from './pages/audit.js';
+import { stopFaceCheckin } from './pages/facecheckin.js';
 import { PAGES } from './pages/index.js';
 import { refreshMemberList } from './pages/members.js';
 import { PREFS, effectiveTheme, loadPrefs, savePrefs } from './prefs.js';
@@ -19,7 +21,7 @@ $('#logo-slot').innerHTML = plateLogo(40);
 $('#menu-btn').innerHTML = ic('menu');
 $('#logout-btn').innerHTML = ic('out') + 'Sign out';
 /* ===== app: routing, actions, login, boot ===== */
-const NAV_ORDER = ['profile', 'dashboard', 'members', 'shop', 'finance', 'analytics', 'rankings', 'audit', 'users', 'password', 'settings'];
+const NAV_ORDER = ['profile', 'dashboard', 'members', 'facecheckin', 'shop', 'finance', 'analytics', 'rankings', 'audit', 'users', 'password', 'settings'];
 
 function currentPage() { return PAGES[ui.route.page] || PAGES.dashboard; }
 /* the route gate: used by render() and by the nav, so a page a user may not open is never reachable, not just hidden */
@@ -58,6 +60,7 @@ function paint(pg, data, key) {
 async function render() {
   if (!session.user) { showLogin(); return; }
   var pg = routeOk(), key = pageKey(), my = ++renderSeq;
+  if (ui.route.page !== 'facecheckin') stopFaceCheckin();   /* the camera runs only on its own page */
   buildNav(); updateSync();
   var fresh = shownKey !== key;
   var wait = null;
@@ -189,6 +192,7 @@ function enterApp() {
 }
 /* back to the login screen: after sign-out, a restore, or a session that ended */
 function leaveApp() {
+  stopFaceCheckin(); stopAllCameras();   /* no camera stays on after sign-out, even one inside a modal that is removed below */
   session.user = null; renderSeq++; shownKey = null; ui.data = null;
   modals.slice().forEach(function (w) { w.remove(); }); modals.length = 0;
   $('#qci-q').value = ''; $('#qci-list').innerHTML = '';
