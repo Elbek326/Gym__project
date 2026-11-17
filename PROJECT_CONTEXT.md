@@ -208,6 +208,24 @@ Eslatma: ma'lumot yoki qoidaga oid o'zgarishlar saytda server qismini ham talab 
 2. Foydalanuvchi "saytga o'tkaz" desa → `client/` ga o'tkazish (login sahifasi, sidebar, modal `info` rejimi, i18n, ikonkalar).
    - Ma'lumot statik bo'lsa, server kerak emas.
 
+## Sessiya: 2026-11-13
+
+- **Zal ma'lumotlari** artifact v12 ga kiritildi (`7b49d9b`, `legacy/` sinxron). `GYM_INFO`:
+  - manzil: Namangan vil., Norin tumani, Haqqulobod sh., Sirmak MFY, O'zbekiston ko'chasi, 3A-uy;
+  - mo'ljal: «Uztex Norin» yonida;
+  - ish vaqti: Har kuni 14:30–24:00 (kunlar taxmin, foydalanuvchi tasdiqlashi kerak);
+  - telefon: +998 95 760 50 30;
+  - Telegram: https://t.me/beksportklubi;
+  - Instagram: https://instagram.com/bek_gym1.
+- Xarita havolasi yo'q: foydalanuvchi faqat uzbekistan360 manzilini bergan, havolani bermagan.
+- **Saytga (client/) hali o'tkazilmagan.**
+
+### Keyingi sessiya shu bilan boshlanadi
+1. Foydalanuvchidan: ish vaqti har kunmi? Xarita havolasi kerakmi?
+2. "Saytga o'tkaz" desa → "Zal haqida"ni `client/` ga ko'chirish:
+   - login sahifasi, sidebar, modal `info` rejimi;
+   - ikonkalar, i18n, `GYM_INFO`.
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
