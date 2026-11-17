@@ -170,6 +170,18 @@ a { color: inherit; }
 .modal > header h3 { flex: 1; font-size: calc(22px * var(--ds)); }
 .modal form { display: flex; flex-direction: column; }
 .modal .mb { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.about-btn { width: 100%; justify-content: center; gap: 8px; background: transparent; border: 1px solid var(--line); color: var(--ink-2); padding: 10px 14px; }
+.about-btn:hover { border-color: var(--brand); color: var(--ink); }
+.about-btn svg, .about-row svg { width: 18px; height: 18px; flex: none; }
+.about-row { display: flex; gap: 12px; align-items: flex-start; min-width: 0; }
+.about-row > svg { color: var(--brand); margin-top: 2px; }
+.about-row .cap { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin-bottom: 2px; }
+.about-row .val { color: var(--ink); overflow-wrap: anywhere; min-width: 0; }
+.about-row .sub { color: var(--ink-3); font-size: 13px; overflow-wrap: anywhere; }
+.about-row a { color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.about-hours { border-collapse: collapse; width: 100%; max-width: 280px; }
+.about-hours td { padding: 3px 0; border-bottom: 1px solid var(--line-2); }
+.about-hours td:last-child { text-align: right; font-variant-numeric: tabular-nums; padding-left: 12px; }
 .modal footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--line-2); flex-wrap: wrap; }
 .form-error { background: var(--bad-bg); color: var(--bad); border-radius: var(--r-ctl); padding: 8px 12px; font-size: 13px; font-weight: 500; }
 .photo-pick { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }

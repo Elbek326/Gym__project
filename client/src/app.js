@@ -94,7 +94,7 @@ function buildNav() {
   $('#nav').innerHTML = NAV_ORDER.map(function (k) {
     var p = PAGES[k]; if (!pageAllowed(p, me)) return '';
     return (k === 'users' ? '<div class="sep"></div>' : '') + '<button type="button" data-act="nav" data-page="' + k + '"' + (k === active ? ' aria-current="page"' : '') + '>' + ic(p.icon) + p.title + '</button>';
-  }).join('');
+  }).join('') + '<div class="sep"></div><button type="button" data-act="about">' + ic('info') + 'About the gym</button>';
   $('#who').innerHTML = avatar({ name: me.username }) + '<div style="min-width:0"><b>' + esc(me.username) + '</b><small>' + esc(me.role.replace('_', ' ')) + '</small></div>';
 }
 /* the topbar chip is the server connection: online, saving, or a write that failed */
@@ -179,6 +179,7 @@ try { var mq = window.matchMedia('(prefers-color-scheme: dark)'); if (mq.addEven
 function showLogin() {
   $('#boot').hidden = true; $('#app').hidden = true; $('#login').hidden = false;
   buildLoginLang();
+  $('#about-login').innerHTML = ic('info') + 'About the gym';
   $('#first-note').textContent = 'Welcome to the Bek Sport Gym app! Ask the manager for your login and password.';
   setTimeout(function () { var u = $('#l_user'); if (u) u.focus(); }, 30);
 }
@@ -235,7 +236,7 @@ document.addEventListener('keydown', function (e) {
 
 /* ---------- delegated events ---------- */
 /* the only buttons a signed-in member can use; the core refuses everything else too */
-const MEMBER_ACTS = { nav: 1, logout: 1, theme: 1, setLang: 1, setMode: 1, setLook: 1, toggleVisits: 1, toggleTx: 1 };
+const MEMBER_ACTS = { nav: 1, about: 1, logout: 1, theme: 1, setLang: 1, setMode: 1, setLook: 1, toggleVisits: 1, toggleTx: 1 };
 document.addEventListener('click', function (e) {
   var el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
   var fn = ACT[el.dataset.act]; if (!fn) return;

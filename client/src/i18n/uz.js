@@ -7,6 +7,10 @@ import I18N from './i18n.js';
   function add(o) { for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) D[k] = o[k]; }
 
   add({
+    /* about the gym */
+    "About the gym": "Zal haqida", "Address": "Manzil", "Working hours": "Ish vaqti", "Phone": "Telefon",
+    "Show on map": "Xaritada ko'rish",
+
     /* navigation and pages */
     "Dashboard": "Boshqaruv paneli", "Members": "A'zolar", "Member": "A'zo", "Shop": "Do'kon", "Finance": "Moliya", "Analytics": "Tahlil",
     "Rankings": "Reyting", "Audit Log": "Harakatlar jurnali", "User Roles": "Foydalanuvchi rollari", "My Password": "Mening parolim", "Settings": "Sozlamalar",

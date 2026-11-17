@@ -2,6 +2,7 @@ import G from './core/gym.js';
 import { api, enc, qs } from './api.js';
 import { refreshAuditList } from './pages/audit.js';
 import { openMemberForm, planFields, readPlan, refreshMemberList, wirePlan } from './pages/members.js';
+import { aboutGym } from './gym-info.js';
 import { hooks, ui } from './state.js';
 import { csvText, downloadFile, saveXlsx } from './ui/export.js';
 import { $, esc } from './ui/html.js';
@@ -39,6 +40,7 @@ export const ACT = {
   auditPage: function (el) { ui.audit.page = parseInt(el.dataset.page, 10) || 1; refreshAuditList(); },
   toggleVisits: function () { ui.det.allVisits = !ui.det.allVisits; repaint(); },
   toggleTx: function () { ui.det.allTx = !ui.det.allTx; repaint(); },
+  about: function () { aboutGym(); },
   logout: function () { doLogout(); },
   theme: function () { toggleTheme(); },
   setLang: function (el) { setPref('lang', el.dataset.v); },
