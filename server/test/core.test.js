@@ -73,6 +73,17 @@ describe.runIf(hasDb)('core adapter', () => {
     expect(await other).toBeNull();
   });
 
+  it('memory follows the database after a delete that cascades (real visit of a sample member)', async () => {
+    const n = await run(null, (G) => G.now());
+    await query("INSERT INTO clients (id, name, created_at, sample) VALUES ('smp1', 'Sample Guy', now(), true)");
+    await query("INSERT INTO subs (id, client, sub_type, start_date, total_sessions, created_at, sample) VALUES ('smps', 'smp1', 'sessions', $1, 5, now(), true)", [n.date]);
+    await query("INSERT INTO visits (id, d, client, subscription, visit_date, visit_time) VALUES ('realv', $1, 'smp1', 'smps', $1, '10:00')", [n.date]);
+    await run(null, () => reload());
+    await run(ADMIN, (G) => G.removeSample());
+    expect(await count('visits', "id = 'realv'")).toBe(0);                                   /* gone in the database (cascade) */
+    expect(await run(ADMIN, (G) => G.values('visits').some((v) => v.id === 'realv'))).toBe(false);   /* and in memory */
+  });
+
   it('a backup restore replaces every table', async () => {
     const b = await run(ADMIN, (G) => G.exportBackup());
     await run(ADMIN, (G) => G.addCharge(cid, { amount: '1000' }));

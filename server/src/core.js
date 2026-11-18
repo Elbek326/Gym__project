@@ -23,6 +23,8 @@ export const COLUMNS = {
   sales: ['id', 'd', 'product', 'product_name', 'client', 'qty', 'unit_price', 'total', 'created_at', 'by', 'sample'],
   audit: ['id', 'd', 'action', 'detail', 'created_at', 'by']
 };
+/* tables whose deleted rows make the database delete or unlink other rows */
+const CASCADING = new Set(['clients', 'subs', 'users']);
 /* parents before children, for inserting a whole state (restore) */
 const ORDER = ['clients', 'users', 'subs', 'measurements', 'products', 'expenses', 'visits', 'txns', 'sales', 'audit'];
 
@@ -104,7 +106,12 @@ export function run(userId, fn) {
     GYM.setSessionUser(userId);
     try {
       const out = await fn(GYM);
+      const cascades = pending.some((o) => o[0] === 'del' && CASCADING.has(o[1]));
       await persist(pending);
+      /* the database also removed rows that point to a deleted member, plan or user (ON DELETE CASCADE / SET NULL)
+         that the core did not delete itself (e.g. a real visit of a sample member): read the tables back so the
+         in-memory copy matches the database again */
+      if (cascades) await reload();
       return out;
     } catch (err) {
       if (pending.length) await reload().catch((e) => console.error('Reload after failure failed:', e.message));
