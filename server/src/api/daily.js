@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { call } from './call.js';
 import { requireStaff } from '../auth/middleware.js';
 import { HttpError } from '../http.js';
+import { deniedOn } from './denied.js';
 
 /* "Today's arrivals": members who checked in on a day, and day-pass guests (people who pay for one visit without
    being members). A day pass is an ordinary income row with category 'day pass'; the guest's name and phone are
@@ -18,7 +19,7 @@ function brief(c) { return c ? { id: c.id, name: c.name, image: c.image || null 
 
 /* GET /api/daily?date=YYYY-MM-DD (default today), newest first */
 dailyRouter.get('/', async (req, res) => {
-  res.json(await call(req, (G) => {
+  const out = await call(req, (G) => {
     G.requireStaff();
     const date = day(G, req.query.date);
     const S = G.S();
@@ -37,7 +38,12 @@ dailyRouter.get('/', async (req, res) => {
       totals: { visits: visits.length, dayPasses: dayPasses.length, dayPassAmount: r2(amount) },
       stats: dayStats(G, date)
     };
-  }));
+  });
+  /* recognised at the entrance but not let in (frozen, no plan, expired...), shown apart */
+  out.denied = await deniedOn(out.date);
+  out.totals.denied = out.denied.length;
+  out.stats.denied = out.denied.length;
+  res.json(out);
 });
 
 function r2(x) { return Math.round(x * 100) / 100; }

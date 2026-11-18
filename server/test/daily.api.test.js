@@ -53,7 +53,7 @@ describe.runIf(hasDb)("today's arrivals API", () => {
     expect(r.body.time).not.toBe('12:00');
     await admin.post('/api/daily/day-pass', { amount: '25000' });
     const d = (await admin.get('/api/daily')).body;
-    expect(d.totals).toEqual({ visits: 1, dayPasses: 2, dayPassAmount: 55000 });
+    expect(d.totals).toEqual({ visits: 1, dayPasses: 2, dayPassAmount: 55000, denied: 0 });
     const f = (await admin.get('/api/finance?month=' + today.slice(0, 7))).body;
     expect(f.totals.income).toBe(55000);
   });
@@ -69,6 +69,32 @@ describe.runIf(hasDb)("today's arrivals API", () => {
     expect(s.yesterday).toEqual({ visits: 0, dayPasses: 0, revenue: 0 });
   });
 
+  it('camera arrivals that were refused are kept apart, once per day, with the reason', async () => {
+    const vali = (await admin.post('/api/members', { name: 'Vali' })).body.id;   /* no plan */
+    const r = await admin.post(`/api/members/${vali}/checkin`, { source: 'face' });
+    expect(r.status).toBe(400);
+    expect(r.body).toEqual({ error: 'Vali has no active subscription.', denied: 'no_plan' });
+    await admin.post(`/api/members/${vali}/checkin`, { source: 'face' });          /* still in front of the camera */
+    let d = (await admin.get('/api/daily')).body;
+    expect(d.denied).toHaveLength(1);
+    expect(d.denied[0]).toMatchObject({ reason: 'no_plan', member: { id: vali, name: 'Vali' } });
+    expect(d.totals.denied).toBe(1);
+    expect(d.stats.denied).toBe(1);
+    /* a manual check-in that fails is not recorded */
+    const before = (await query('SELECT count(*)::int n FROM denied_arrivals')).rows[0].n;
+    await admin.post(`/api/members/${vali}/checkin`);
+    expect((await query('SELECT count(*)::int n FROM denied_arrivals')).rows[0].n).toBe(before);
+    /* "already checked in today" is not a refusal to record */
+    const again = await admin.post(`/api/members/${ali}/checkin`, { source: 'face' });
+    expect(again.body.denied).toBeUndefined();
+    /* the member gets a plan and checks in: no longer listed as refused */
+    await admin.post(`/api/members/${vali}/subscriptions`, { sub_type: 'sessions', start_date: today, total_sessions: '5', price: '0' });
+    await admin.post(`/api/members/${vali}/checkin`, { source: 'face' });
+    d = (await admin.get('/api/daily')).body;
+    expect(d.denied).toHaveLength(0);
+    expect(d.visits.map((v) => v.member.name).sort()).toEqual(['Ali', 'Vali']);
+  });
+
   it('refuses a missing amount and a bad date', async () => {
     expect((await admin.post('/api/daily/day-pass', { name: 'X' })).body.error).toBe('Amount is required.');
     expect((await admin.get('/api/daily?date=2026-02-30')).status).toBe(400);
@@ -76,7 +102,7 @@ describe.runIf(hasDb)("today's arrivals API", () => {
 
   it('another day shows that day only', async () => {
     const d = (await admin.get('/api/daily?date=2020-01-01')).body;
-    expect(d.totals).toEqual({ visits: 0, dayPasses: 0, dayPassAmount: 0 });
+    expect(d.totals).toEqual({ visits: 0, dayPasses: 0, dayPassAmount: 0, denied: 0 });
   });
 
   it('members cannot see or add arrivals; other routes still work for them', async () => {

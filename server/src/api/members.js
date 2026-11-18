@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { call } from './call.js';
 import { requireStaff, requireUser } from '../auth/middleware.js';
+import { deniedReason, recordDenied } from './denied.js';
 
 /* members and their subscriptions. Every rule lives in the core; these routes only translate HTTP to core calls.
    Staff-only routes are guarded twice: here (fast 403) and again inside the core. */
@@ -78,7 +79,16 @@ membersRouter.post('/:id/unfreeze', requireStaff, async (req, res) => {
 /* check-in: the core checks frozen, plan, sessions left, expiry, once per day and training days;
    the database also refuses a second visit on the same day if two desks press at once */
 membersRouter.post('/:id/checkin', requireStaff, async (req, res) => {
-  res.status(201).json(await call(req, (G) => G.checkIn(req.params.id)));
+  try {
+    res.status(201).json(await call(req, (G) => G.checkIn(req.params.id)));
+  } catch (err) {
+    /* the entrance camera ({ source: 'face' }) recognised a member who may not train today: keep the arrival with
+       its reason, so the day's statistics still show they came. The reply stays the same error, plus `denied`. */
+    const reason = err && err.status === 400 && (req.body || {}).source === 'face' ? deniedReason(err.message) : null;
+    if (!reason) throw err;
+    await recordDenied(req.params.id, reason, err.message);
+    res.status(400).json({ error: err.message, denied: reason });
+  }
 });
 
 /* money: debt is the source of truth, every change is also a transaction row */
