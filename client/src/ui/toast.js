@@ -4,7 +4,7 @@ import { $, esc } from './html.js';
 /* ----- toasts ----- */
 export function toast(msg, type) {
   var box = $('#toasts'); var el = document.createElement('div');
-  el.className = 'toast' + (type === 'err' ? ' err' : '');
+  el.className = 'toast' + (type === 'err' ? ' err' : type === 'ok' ? ' ok' : '');
   el.innerHTML = '<i></i><span>' + esc(msg) + '</span>';
   box.appendChild(el);
   setTimeout(function () { el.remove(); }, type === 'err' ? 6500 : 3800);

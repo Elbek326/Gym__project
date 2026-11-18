@@ -7,17 +7,23 @@ import I18N from './i18n.js';
   function add(o) { for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) D[k] = o[k]; }
 
   add({
+    /* today's arrivals, day pass, background camera */
+    "Today's arrivals": "Bugun kelganlar", "Day pass": "Bir kunlik", "+ Day pass": "+ Bir kunlik", "Day pass recorded": "Bir kunlik to'lov yozildi",
+    "Members came": "Kelgan a'zolar", "Day passes": "Bir kunliklar", "Day-pass income": "Bir kunlik tushum", "Walk-in guest": "Mehmon",
+    "Arrivals": "Kelganlar", "No arrivals": "Hali hech kim kelmagan", "Check-ins and day passes of this day appear here.": "Shu kundagi kirishlar va bir kunlik to'lovlar shu yerda ko'rinadi.",
+    "Today": "Bugun", "Name (optional)": "Ism (ixtiyoriy)", "Phone (optional)": "Telefon (ixtiyoriy)", "Enter the amount.": "Summani kiriting.",
+    "Camera on": "Kamera yoqish", "Camera off": "Kamera o'chirish", "Show camera": "Kamerani ko'rsatish", "Hide camera": "Kamerani yashirish",
+    "Keep this tab open": "Bu oynani ochiq qoldiring", "best": "eng yaqin",
+
     /* about the gym */
     "About the gym": "Zal haqida", "Address": "Manzil", "Working hours": "Ish vaqti", "Phone": "Telefon",
     "Show on map": "Xaritada ko'rish",
 
     /* face check-in and Face ID */
-    "Face check-in": "Yuz bilan kirish", "Face ID": "Yuz ID", "Enrol face": "Yuzni ro'yxatga olish", "Re-enrol": "Qayta ro'yxatga olish",
+    "Face ID": "Yuz ID", "Enrol face": "Yuzni ro'yxatga olish", "Re-enrol": "Qayta ro'yxatga olish",
     "Delete face data": "Yuz ma'lumotini o'chirish", "Enrolled": "Ro'yxatga olingan", "Not enrolled": "Ro'yxatga olinmagan", "Shots": "Kadrlar", "Agreed on": "Rozilik sanasi",
     "The member can check in by face once enrolled.": "Ro'yxatga olingach, a'zo yuzi bilan kira oladi.",
-    "Reload list": "Ro'yxatni yangilash", "Loading members": "A'zolar yuklanmoqda", "Could not load the members": "A'zolarni yuklab bo'lmadi",
-    "Stand in front of the camera, one person at a time. The camera is used only on this page.": "Kamera oldida turing, bir vaqtda bitta odam. Kamera faqat shu sahifada ishlaydi.",
-    "Not recognised": "Tanilmadi", "One person at a time": "Bir vaqtda bitta odam", "Recognising": "Aniqlanmoqda", "Checked in": "Kirdi",
+    "Not recognised": "Tanilmadi", "One person at a time": "Bir vaqtda bitta odam", "Recognising": "Aniqlanmoqda",
     "No member has enrolled a face yet.": "Hali birorta a'zo yuzini ro'yxatdan o'tkazmagan.",
     "Starting the camera": "Kamera ishga tushmoqda", "Loading face models": "Yuz modellari yuklanmoqda",
     "Could not load the face models. Check the connection and try again.": "Yuz modellarini yuklab bo'lmadi. Ulanishni tekshirib, qayta urinib ko'ring.",
@@ -33,6 +39,8 @@ import I18N from './i18n.js';
     "The camera is still starting. Try again in a moment.": "Kamera hali ishga tushmoqda. Birozdan so'ng qayta urinib ko'ring.",
     "No clear face was found. Face the camera in good light and try again.": "Aniq yuz topilmadi. Yorug' joyda kameraga qarab, qayta urinib ko'ring.",
     "Face detection failed. Reload the page and try again.": "Yuzni aniqlab bo'lmadi. Sahifani yangilab, qayta urinib ko'ring.",
+    "Look straight at the camera": "To'g'ri kameraga qarang", "Turn your head slightly to the left": "Boshingizni chapga biroz buring",
+    "Turn your head slightly to the right": "Boshingizni o'ngga biroz buring", "Look straight again": "Yana to'g'ri qarang", "Tilt your head slightly up": "Boshingizni biroz yuqoriga ko'taring",
     "Look at the camera": "Kameraga qarang", "No face found. Look at the camera": "Yuz topilmadi. Kameraga qarang", "One person at a time.": "Bir vaqtda bitta odam.",
     "Come a little closer": "Biroz yaqinroq keling", "The face changed. Keep the same person in front of the camera": "Yuz almashdi. Kamera oldida bir xil odam turishi kerak",
     "Face saved": "Yuz saqlandi", "Face data deleted": "Yuz ma'lumoti o'chirildi",
@@ -129,7 +137,7 @@ import I18N from './i18n.js';
     "Debt after": "Keyingi qarz", "Debt owed to you": "Sizga qarzdorlik", "Payments and charges": "To'lovlar va hisoblar", "No transactions yet": "Hali operatsiyalar yo'q",
     "Membership": "A'zolik", "Memberships": "A'zoliklar", "Payment": "To'lov", "Adjustment": "Tuzatish", "Total": "Jami", "Total:": "Jami:",
     "adjustment": "tuzatish", "payment": "to'lov", "charge": "hisob", "membership": "a'zolik", "shop": "do'kon", "personal training": "shaxsiy mashg'ulot", "other": "boshqa",
-    "rent": "ijara", "salary": "oylik", "repair": "ta'mir", "equipment": "jihozlar", "utilities": "kommunal xizmatlar", "marketing": "marketing", "day pass": "bir kunlik chipta", "locker rental": "shkaf ijarasi",
+    "rent": "ijara", "salary": "oylik", "repair": "ta'mir", "equipment": "jihozlar", "utilities": "kommunal xizmatlar", "marketing": "marketing", "day pass": "bir kunlik", "locker rental": "shkaf ijarasi",
     "Paid with subscription": "Abonement bilan to'langan", "Debt adjusted": "Qarz tuzatildi",
 
     /* measurements */
@@ -173,7 +181,7 @@ import I18N from './i18n.js';
     "Description": "Tavsif", "Other income": "Boshqa daromad", "Shop sale": "Do'kon sotuvi", "Membership payment": "A'zolik to'lovi",
     "Delete expense entry": "Xarajat yozuvini o'chirish", "Delete income entry": "Daromad yozuvini o'chirish",
     "Rent": "Ijara", "Salary": "Oylik", "Repair": "Ta'mir", "Utilities": "Kommunal xizmatlar", "Marketing": "Marketing", "Personal training": "Shaxsiy mashg'ulot",
-    "Day pass": "Bir kunlik chipta", "Locker rental": "Shkaf ijarasi",
+    "Day pass": "Bir kunlik", "Locker rental": "Shkaf ijarasi",
     "Choose an expense category.": "Xarajat turkumini tanlang.",
 
     /* analytics and rankings */
@@ -307,9 +315,11 @@ import I18N from './i18n.js';
   pat(/^(.+) \+(\d+), cost (.+) to (.+)$/, function (m) { return m[1] + " +" + m[2] + ", tannarx " + m[3] + " → " + m[4]; });
 
   /* counts and short phrases */
-  pat(/^(\d+) members? enrolled$/, function (m) { return m[1] + " a'zo ro'yxatga olingan"; });
+  pat(/^(.+) came — (.+)$/, function (m, T) { return m[1] + " keldi — " + T(m[2]); });
+  pat(/^best: ([\d.]+|-) \((none|far|close-call|ok)\)$/, function (m) {
+    return "eng yaqin: " + m[1] + " (" + { none: "ro'yxat bo'sh", far: "uzoq", "close-call": "ikkilanish", ok: "mos" }[m[2]] + ")";
+  });
   pat(/^(.+?)\.? (\d)\/(\d)$/, function (m, T) { var h = T(m[1]); return h === m[1] ? null : h + ". " + m[2] + "/" + m[3]; });
-  pat(/^Shot (\d)\/(\d)\. Turn your head slightly\.$/, function (m) { return "Kadr " + m[1] + "/" + m[2] + ". Boshingizni biroz buring."; });
   pat(/^Shot (\d)\/(\d)\.$/, function (m) { return "Kadr " + m[1] + "/" + m[2] + "."; });
   pat(/^(\d+) days? left$/, function (m) { return m[1] + " kun qoldi"; });
   pat(/^(\d+) sessions? left$/, function (m) { return m[1] + " mashg'ulot qoldi"; });

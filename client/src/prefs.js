@@ -1,4 +1,4 @@
-export var PREFS = { lang: 'uz', mode: 'auto', look: 'elegant', side: 'shown' };
+export var PREFS = { lang: 'uz', mode: 'auto', look: 'elegant', side: 'shown', faceCam: false };
 export var LOOK_KEYS = ['elegant', 'osmon', 'zumrad', 'qum'];
 export function loadPrefs() {
   try {
@@ -9,6 +9,7 @@ export function loadPrefs() {
       if (o.mode === 'auto' || o.mode === 'light' || o.mode === 'dark') PREFS.mode = o.mode;
       if (LOOK_KEYS.indexOf(o.look) >= 0) PREFS.look = o.look;
       if (o.side === 'shown' || o.side === 'hidden') PREFS.side = o.side;
+      if (typeof o.faceCam === 'boolean') PREFS.faceCam = o.faceCam;   /* the background camera of this device (staff only) */
     } else {
       var old = localStorage.getItem('gym_theme');           /* version 2 stored just light or dark */
       if (old === 'dark' || old === 'light') PREFS.mode = old;

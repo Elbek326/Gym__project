@@ -4,7 +4,8 @@ import { refreshAuditList } from './pages/audit.js';
 import { openMemberForm, planFields, readPlan, refreshMemberList, wirePlan } from './pages/members.js';
 import { openEnroll } from './face/enroll.js';
 import { aboutGym } from './gym-info.js';
-import { reloadFaces, retryFaceCheckin } from './pages/facecheckin.js';
+import { foldCamera, retryCamera, toggleCamera } from './face/watcher.js';
+import { openDayPass } from './pages/daily.js';
 import { hooks, ui } from './state.js';
 import { csvText, downloadFile, saveXlsx } from './ui/export.js';
 import { $, esc } from './ui/html.js';
@@ -43,8 +44,11 @@ export const ACT = {
   toggleVisits: function () { ui.det.allVisits = !ui.det.allVisits; repaint(); },
   toggleTx: function () { ui.det.allTx = !ui.det.allTx; repaint(); },
   about: function () { aboutGym(); },
-  faceRetry: function () { retryFaceCheckin(); },
-  faceReload: function () { return reloadFaces(); },
+  camToggle: function () { toggleCamera(); },
+  camFold: function () { foldCamera(); },
+  camRetry: function () { retryCamera(); },
+  addDayPass: function () { openDayPass(); },
+  dailyToday: function () { ui.daily.date = ''; render(); },
   faceEnroll: function (el) { openEnroll(memberById(el.dataset.id), render); },
   faceDelete: async function (el) {
     var c = memberById(el.dataset.id);

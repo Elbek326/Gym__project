@@ -3,8 +3,8 @@ import G from './core/gym.js';
 import I18N from './i18n/i18n.js';
 import { api, enc, net, qs } from './api.js';
 import { stopAllCameras } from './face/camera.js';
+import { syncWatcher } from './face/watcher.js';
 import { refreshAuditList } from './pages/audit.js';
-import { stopFaceCheckin } from './pages/facecheckin.js';
 import { PAGES } from './pages/index.js';
 import { refreshMemberList } from './pages/members.js';
 import { PREFS, effectiveTheme, loadPrefs, savePrefs } from './prefs.js';
@@ -21,7 +21,7 @@ $('#logo-slot').innerHTML = plateLogo(40);
 $('#menu-btn').innerHTML = ic('menu');
 $('#logout-btn').innerHTML = ic('out') + 'Sign out';
 /* ===== app: routing, actions, login, boot ===== */
-const NAV_ORDER = ['profile', 'dashboard', 'members', 'facecheckin', 'shop', 'finance', 'analytics', 'rankings', 'audit', 'users', 'password', 'settings'];
+const NAV_ORDER = ['profile', 'dashboard', 'members', 'daily', 'shop', 'finance', 'analytics', 'rankings', 'audit', 'users', 'password', 'settings'];
 
 function currentPage() { return PAGES[ui.route.page] || PAGES.dashboard; }
 /* the route gate: used by render() and by the nav, so a page a user may not open is never reachable, not just hidden */
@@ -60,7 +60,6 @@ function paint(pg, data, key) {
 async function render() {
   if (!session.user) { showLogin(); return; }
   var pg = routeOk(), key = pageKey(), my = ++renderSeq;
-  if (ui.route.page !== 'facecheckin') stopFaceCheckin();   /* the camera runs only on its own page */
   buildNav(); updateSync();
   var fresh = shownKey !== key;
   var wait = null;
@@ -189,11 +188,12 @@ function showLogin() {
 function enterApp() {
   $('#boot').hidden = true; $('#login').hidden = true; $('#app').hidden = false;
   ui.route = { page: homePage(session.user), id: null }; shownKey = null; render(); window.scrollTo(0, 0);
+  syncWatcher();   /* the background camera: only for staff, only when switched on */
 }
 /* back to the login screen: after sign-out, a restore, or a session that ended */
 function leaveApp() {
-  stopFaceCheckin(); stopAllCameras();   /* no camera stays on after sign-out, even one inside a modal that is removed below */
-  session.user = null; renderSeq++; shownKey = null; ui.data = null;
+  session.user = null; syncWatcher(); stopAllCameras();   /* no camera stays on after sign-out, even one inside a modal that is removed below */
+  renderSeq++; shownKey = null; ui.data = null;
   modals.slice().forEach(function (w) { w.remove(); }); modals.length = 0;
   $('#qci-q').value = ''; $('#qci-list').innerHTML = '';
   showLogin();
@@ -257,6 +257,7 @@ document.addEventListener('change', function (e) {
   try {
     var k = el.dataset.change;
     if (k === 'finMonth') { if (/^\d{4}-\d{2}$/.test(el.value)) { ui.fin.ym = el.value; render(); } }
+    else if (k === 'dailyDate') { ui.daily.date = /^d{4}-d{2}-d{2}$/.test(el.value) ? el.value : ''; render(); }
     else if (k === 'anMonth') { if (/^\d{4}-\d{2}$/.test(el.value)) { ui.an.ym = el.value; render(); } }
     else if (k === 'setRole') { api.put('/api/admin/users/' + enc(el.dataset.id) + '/role', { role: el.value }).then(function () { toast('Role changed'); }, fail).then(render); }
     else if (k === 'restoreFile') {

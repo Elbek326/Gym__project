@@ -6,13 +6,18 @@ import { $ } from '../ui/html.js';
 import { startCamera, stopCamera } from './camera.js';
 import { detectFaces, loadEngine } from './engine.js';
 import { distance, THRESHOLD } from './match.js';
+import { refreshFaces } from './watcher.js';
 
-/* ===== enrolment: three automatic shots of one face, then PUT /api/members/:id/face =====
+/* ===== enrolment: five automatic shots of one face, then PUT /api/members/:id/face =====
    Only 128 numbers per shot leave the browser; the picture itself is never kept or sent. */
-export const SHOTS = 3;
-const MIN_SIZE = 0.22;      /* the face must fill at least this share of the frame width */
+export const SHOTS = 5;
+const MIN_SIZE = 0.15;      /* the face must fill at least this share of the frame width */
 const PAUSE = 800;          /* ms between two shots, so they are not the same instant */
-const GIVE_UP = 45000;      /* ms without three good shots */
+const GIVE_UP = 45000;      /* ms without five good shots */
+
+/* what to do for each shot: the small head turns give the matcher several views of the same face */
+const HINTS = ['Look straight at the camera', 'Turn your head slightly to the left', 'Turn your head slightly to the right', 'Look straight again', 'Tilt your head slightly up'];
+function ask(n) { return HINTS[n] + '. ' + n + '/' + SHOTS; }
 
 function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
@@ -46,7 +51,7 @@ export function openEnroll(member, onDone) {
         if (engineErr) throw new G.AppError('Could not load the face models. Check the connection and try again.');
         await loadEngine();
         var shots = [], started = Date.now();
-        hint.textContent = 'Look at the camera. 0/' + SHOTS;
+        hint.textContent = ask(0);
         while (shots.length < SHOTS) {
           if (closed) return false;
           if (Date.now() - started > GIVE_UP) throw new G.AppError('No clear face was found. Face the camera in good light and try again.');
@@ -58,12 +63,13 @@ export function openEnroll(member, onDone) {
           if (f.size < MIN_SIZE) { hint.textContent = 'Come a little closer. ' + shots.length + '/' + SHOTS; await wait(300); continue; }
           if (shots.length && distance(f.descriptor, shots[0]) > THRESHOLD) { hint.textContent = 'The face changed. Keep the same person in front of the camera. ' + shots.length + '/' + SHOTS; await wait(300); continue; }
           shots.push(f.descriptor);
-          hint.textContent = 'Shot ' + shots.length + '/' + SHOTS + (shots.length < SHOTS ? '. Turn your head slightly.' : '.');
-          if (shots.length < SHOTS) await wait(PAUSE);
+          hint.textContent = 'Shot ' + shots.length + '/' + SHOTS + '.';
+          if (shots.length < SHOTS) { await wait(PAUSE); hint.textContent = ask(shots.length); }
         }
         if (closed) return false;
         await api.put('/api/members/' + enc(member.id) + '/face', { consent: true, descriptors: shots });
         toast('Face saved');
+        refreshFaces();   /* the camera in the background knows the new face at once */
         if (onDone) onDone();
         return true;
       } finally {

@@ -8,6 +8,7 @@ export const ui = {
   fin: { ym: G.now().date.slice(0, 7) },
   an: { ym: G.now().date.slice(0, 7) },
   audit: { q: '', page: 1 },
+  daily: { date: '' },   /* '' = today */
   det: { allVisits: false, allTx: false },
   /* what the current page loaded from the API (the profile, the product list ...): actions read names and amounts from here */
   data: null
