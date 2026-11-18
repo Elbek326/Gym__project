@@ -14,6 +14,7 @@ import { financeRouter } from './api/finance.js';
 import { reportsRouter } from './api/reports.js';
 import { adminRouter } from './api/admin.js';
 import { facesRouter } from './api/faces.js';
+import { dailyRouter } from './api/daily.js';
 
 /* builds the Express app without listening, so tests can use it directly */
 export function createApp() {
@@ -35,6 +36,7 @@ export function createApp() {
   app.use('/api/admin', adminRouter);
   app.use('/api', reportsRouter);   /* /dashboard, /analytics, /rankings, /audit */
   app.use('/api', facesRouter);     /* /faces, /members/:id/face */
+  app.use('/api/daily', dailyRouter);
 
   /* liveness and database check */
   app.get('/api/health', async (req, res) => {

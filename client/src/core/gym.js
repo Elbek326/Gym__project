@@ -718,7 +718,8 @@ var GYM = (function () {
     var amt = money(f.amount);
     var d = f.date || now().date; if (!isDate(d)) throw new AppError('Date is not valid.');
     var cat = INCOME_CATS.indexOf(f.category) >= 0 ? f.category : 'other';
-    var t = logTxn('income', null, cat, amt, null, String(f.note || '').trim().slice(0, 200), d);
+    /* no date given = now, with the real time of day (a day pass); a chosen date is logged at 12:00 as before */
+    var t = logTxn('income', null, cat, amt, null, String(f.note || '').trim().slice(0, 200), f.date ? d : null);
     audit('INCOME_ADDED', cat + ': ' + fmtMoney(amt));
     return t;
   }
