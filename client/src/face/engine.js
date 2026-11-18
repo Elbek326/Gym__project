@@ -10,7 +10,7 @@ export function loadEngine() {
       try { await lib.tf.setBackend('webgl'); } catch (e) { console.warn('WebGL backend not available, using the default one', e); }
       await lib.tf.ready();
       var url = import.meta.env.BASE_URL + 'models';
-      await Promise.all([lib.nets.tinyFaceDetector.loadFromUri(url), lib.nets.faceLandmark68TinyNet.loadFromUri(url), lib.nets.faceRecognitionNet.loadFromUri(url)]);
+      await Promise.all([lib.nets.tinyFaceDetector.loadFromUri(url), lib.nets.faceLandmark68Net.loadFromUri(url), lib.nets.faceRecognitionNet.loadFromUri(url)]);
       faceapi = lib;
     })();
     loading.catch(function () { loading = null; });   /* a failed load (offline, blocked) can be retried */
@@ -22,8 +22,8 @@ var OPTS = null;
 /* all faces in the video frame: [{ size, descriptor }] where size = box width as a share of the frame width (0..1) */
 export async function detectFaces(video) {
   if (!faceapi) throw new Error('The face engine is not loaded.');
-  if (!OPTS) OPTS = new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 });
+  if (!OPTS) OPTS = new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.4 });
   var w = video.videoWidth || 1;
-  var res = await faceapi.detectAllFaces(video, OPTS).withFaceLandmarks(true).withFaceDescriptors();
+  var res = await faceapi.detectAllFaces(video, OPTS).withFaceLandmarks(false).withFaceDescriptors();
   return res.map(function (r) { return { size: r.detection.box.width / w, descriptor: Array.from(r.descriptor) }; });
 }

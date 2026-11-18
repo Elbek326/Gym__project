@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MARGIN, STABLE_FRAMES, THRESHOLD, createStabilizer, distance, matchFace, rank } from '../match.js';
+import { MARGIN, STABLE_NEED, STABLE_WINDOW, THRESHOLD, createStabilizer, distance, matchFace, rank } from '../match.js';
 
 /* a 128-d vector that is `x` at the first position and 0 elsewhere: the distance between two of them is |x1 - x2| */
 function v(x) { var a = new Array(128).fill(0); a[0] = x; return a; }
@@ -64,29 +64,45 @@ describe('matchFace', () => {
 });
 
 describe('createStabilizer', () => {
-  it('fires only after the same member wins N frames in a row', () => {
-    var s = createStabilizer(STABLE_FRAMES);
-    expect(s.push('a')).toBeNull(); expect(s.push('a')).toBeNull();
+  it('uses 2 of the last 3 frames and a threshold of 0.55', () => {
+    expect(STABLE_NEED).toBe(2); expect(STABLE_WINDOW).toBe(3); expect(THRESHOLD).toBe(0.55); expect(MARGIN).toBe(0.08);
+  });
+  it('fires when the same member wins two frames in a row', () => {
+    var s = createStabilizer();
+    expect(s.push('a')).toBeNull(); expect(s.push('a')).toBe('a');
+  });
+  it('fires on 2 of the last 3 even with a failed frame between', () => {
+    var s = createStabilizer();
+    expect(s.push('a')).toBeNull(); expect(s.push(null)).toBeNull(); expect(s.push('a')).toBe('a');
+  });
+  it('does not fire when the two wins are further apart than the window', () => {
+    var s = createStabilizer();
+    s.push('a'); s.push(null); s.push(null);
+    expect(s.push('a')).toBeNull();
+  });
+  it('a different winner breaks the streak', () => {
+    var s = createStabilizer();
+    s.push('a'); expect(s.push('b')).toBeNull();
+    expect(s.push('a')).toBeNull();      /* a's earlier win is gone */
     expect(s.push('a')).toBe('a');
   });
-  it('restarts when the winner changes or a frame has no winner', () => {
-    var s = createStabilizer(3);
-    s.push('a'); s.push('a'); expect(s.push('b')).toBeNull();
-    expect(s.push('b')).toBeNull(); expect(s.push(null)).toBeNull();
-    expect(s.push('b')).toBeNull(); expect(s.push('b')).toBeNull(); expect(s.push('b')).toBe('b');
+  it('frames without a face are not pushed, so they neither count nor break the streak', () => {
+    var s = createStabilizer();
+    s.push('a');
+    /* the watcher skips push() on empty frames: nothing happens here */
+    expect(s.push('a')).toBe('a');
   });
   it('needs another full run after firing', () => {
-    var s = createStabilizer(3);
-    s.push('a'); s.push('a'); expect(s.push('a')).toBe('a');
-    expect(s.push('a')).toBeNull(); expect(s.push('a')).toBeNull(); expect(s.push('a')).toBe('a');
+    var s = createStabilizer();
+    expect(s.push('a')).toBeNull(); expect(s.push('a')).toBe('a');
+    expect(s.push('a')).toBeNull(); expect(s.push('a')).toBe('a');
   });
   it('reset clears the streak', () => {
-    var s = createStabilizer(2);
+    var s = createStabilizer();
     s.push('a'); s.reset(); expect(s.push('a')).toBeNull(); expect(s.push('a')).toBe('a');
   });
-  it('defaults to three frames', () => {
-    expect(STABLE_FRAMES).toBe(3);
-    var s = createStabilizer();
-    s.push('x'); s.push('x'); expect(s.push('x')).toBe('x');
+  it('honours custom need and window', () => {
+    var s = createStabilizer(3, 3);
+    s.push('a'); s.push('a'); expect(s.push('a')).toBe('a');
   });
 });
