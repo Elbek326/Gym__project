@@ -303,6 +303,7 @@ a { color: inherit; }
 .bell-panel header { border-bottom: 1px solid var(--line); flex-wrap: wrap; } .bell-panel footer { border-top: 1px solid var(--line); justify-content: flex-end; }
 .bell-panel .list { overflow-y: auto; }
 .bell-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 12px; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.bell-row .deny { display: block; color: var(--bad); font-size: 12px; } .bell-row.denied.unread { background: var(--bad-bg); }
 .bell-row:hover { background: var(--surface-2); } .bell-row.unread { background: var(--ok-bg); }
 .cam-btn.on { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); }
 .fcam { position: fixed; z-index: 35; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 180px; }

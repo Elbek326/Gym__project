@@ -13,6 +13,10 @@ import { toast } from '../ui/toast.js';
    GET /api/daily?date=YYYY-MM-DD (the date is optional: empty = today). The page is refreshed after every check-in. */
 export function loadDaily() { return api.get('/api/daily' + qs({ date: ui.daily.date })); }
 
+/* why the entrance camera did not let a recognised member in (the server's `reason` codes) */
+var DENY = { frozen: 'Frozen', no_plan: 'Without a plan', finished: 'Plan ended', expired: 'Membership expired', not_training_day: 'Not a training day' };
+export function denyText(code) { return DENY[code] || 'Not let in'; }
+
 /* "2 days left" / "5 sessions left"; a member with no plan any more shows nothing */
 function leftText(v) {
   if (v.remaining == null) return '';
@@ -50,7 +54,8 @@ function statsBlock(D) {
     tile('New members', st.newMembers, 'dot-ok') +
     (y ? dtile('Revenue', money(st.revenue), '', st.revenue, y.revenue, 'UZS', money) : tile('Revenue', money(st.revenue), '', '', 'UZS')) +
     tile('Expenses', money(st.expenses), '', '', 'UZS') +
-    tile('Profit', money(st.profit), st.profit < 0 ? 'dot-bad' : 'dot-ok', '', 'UZS') + '</div>';
+    tile('Profit', money(st.profit), st.profit < 0 ? 'dot-bad' : 'dot-ok', '', 'UZS') +
+    (D.denied ? tile('Not let in', D.denied.length, 'dot-bad') : '') + '</div>';
   var chart = hours.some(function (h) { return h.visits + h.dayPasses > 0; })
     ? barChart(hours.map(function (h) { return { label: hh(h.hour), value: h.visits + h.dayPasses, title: hh(h.hour) + ':00 — ' + h.visits + ' + ' + h.dayPasses }; }),
         { label: 'Arrivals by hour', hiLast: false, labelEvery: 2 })
@@ -63,13 +68,14 @@ export function pDaily(D) {
   /* one list for both kinds, newest first ("HH:MM" strings sort the same way as the clock) */
   var rows = D.visits.map(function (v) { return { time: v.time || '', html: memberRow(v) }; })
     .concat(D.dayPasses.map(function (p) { return { time: p.time || '', html: passRow(p) }; }))
+    .concat((D.denied || []).map(function (x) { return { time: x.time || '', html: deniedRow(x) }; }))
     .sort(function (a, b) { return a.time < b.time ? 1 : a.time > b.time ? -1 : 0; });
   var today = G.now().date;
   return '<div class="toolbar"><div class="field" style="flex-direction:row;align-items:center;gap:8px"><label for="daily-date" class="lbl">Date</label>' +
     '<input id="daily-date" type="date" value="' + esc(D.date) + '" max="' + esc(today) + '" data-change="dailyDate" style="padding:7px 10px;border:1px solid var(--line);border-radius:var(--r-ctl);background:var(--surface)"></div>' +
     (D.date !== today ? '<button class="btn btn-sm" data-act="dailyToday">Today</button>' : '') +
     '<span class="grow"></span>' + (D.stats ? '<button class="btn" data-act="exportDaily">Excel</button>' : '') + '<button class="btn btn-primary" data-act="addDayPass">+ Day pass</button></div>' +
-    (D.stats ? statsBlock(D) : '<div class="tiles">' + tile('Members came', t.visits, 'dot-ok') + tile('Day passes', t.dayPasses, 'dot-warn') + tile('Day-pass income', money(t.dayPassAmount), '', '', 'UZS') + '</div>') +
+    (D.stats ? statsBlock(D) : '<div class="tiles">' + tile('Members came', t.visits, 'dot-ok') + tile('Day passes', t.dayPasses, 'dot-warn') + tile('Day-pass income', money(t.dayPassAmount), '', '', 'UZS') + (D.denied ? tile('Not let in', D.denied.length, 'dot-bad') : '') + '</div>') +
     '<section class="card"><header><h3>Arrivals</h3><span class="muted small">' + (t.visits + t.dayPasses) + '</span></header>' +
     (rows.length ? '<div class="list">' + rows.map(function (r) { return r.html; }).join('') + '</div>' :
       '<div class="empty"><b>No arrivals</b>Check-ins and day passes of this day appear here.</div>') + '</section>';
@@ -79,6 +85,10 @@ function memberRow(v) {
   var left = leftText(v);
   return '<div class="arr">' + avatar(v.member) + '<span class="grow">' + memberLink(v.member) + '</span>' +
     (left ? '<span class="small muted">' + left + '</span>' : '') + '<span class="chip ok">Member</span>' + '<span class="mono muted">' + esc(v.time) + '</span></div>';
+}
+function deniedRow(x) {
+  return '<div class="arr">' + avatar(x.member) + '<span class="grow">' + memberLink(x.member) + '</span>' +
+    '<span class="chip bad">' + denyText(x.reason) + '</span>' + '<span class="mono muted">' + esc(x.time) + '</span></div>';
 }
 function passRow(p) {
   var name = p.name || 'Walk-in guest';
@@ -113,10 +123,12 @@ export async function exportDaily() {
   var sum = [['Bek Sport Gym: daily report', D.date], ['Members came', t.visits], ['Day passes', t.dayPasses], ['Day-pass income', t.dayPassAmount]];
   if (D.stats) sum.push(['New members', st.newMembers], ['Membership payments', st.payments], ['Other income', st.income], ['Shop sales', st.sales],
     ['Revenue', st.revenue], ['Expenses', st.expenses], ['Profit', st.profit]);
+  if (D.denied) sum.push(['Not let in', D.denied.length]);
   if (y) sum.push(['Members came yesterday', y.visits], ['Day passes yesterday', y.dayPasses], ['Revenue yesterday', y.revenue]);
-  var arr = [['Time', 'Name', 'Type', 'Left / Amount (UZS)']]
+  var arr = [['Time', 'Name', 'Type', 'Left / Amount (UZS) / Reason']]
     .concat(D.visits.map(function (v) { return [v.time, v.member ? v.member.name : '', 'Member', leftText(v)]; }))
     .concat(D.dayPasses.map(function (p) { return [p.time, p.name || 'Walk-in guest', 'Day pass', p.amount]; }))
+    .concat((D.denied || []).map(function (x) { return [x.time, x.member ? x.member.name : '', 'Not let in', denyText(x.reason)]; }))
     .sort(function (a, b) { return a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0; });
   arr = [arr.shift()].concat(arr);
   var hr = [['Hour', 'Members came', 'Day passes']].concat(st.byHour.map(function (h) { return [hh(h.hour) + ':00', h.visits, h.dayPasses]; }));

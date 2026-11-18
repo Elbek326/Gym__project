@@ -28,7 +28,7 @@ async function send(method, path, body, raw) {
       if (res.status >= 500) failed = true;
       if (res.status === 401 && net.onUnauthorized && net.onUnauthorized()) signedOut = true;   /* the app already went to the login screen */
       var msg = data && data.error ? data.error : (res.status >= 502 ? 'Could not reach the server.' : 'Something went wrong: ' + res.status);
-      var err = new G.AppError(msg); err.signedOut = signedOut;
+      var err = new G.AppError(msg); err.signedOut = signedOut; if (data && data.denied) err.denied = data.denied;   /* a refused check-in says why: 'frozen', 'expired' ... */
       throw err;
     }
     return raw ? text : data;

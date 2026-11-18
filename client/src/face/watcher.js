@@ -130,13 +130,14 @@ async function fire(id) {
   if ((S.cool.get(id) || 0) > now) return;
   S.cool.set(id, now + COOLDOWN);
   try {
-    var r = await api.post('/api/members/' + enc(id) + '/checkin');
+    var r = await api.post('/api/members/' + enc(id) + '/checkin', { source: 'face' });
     noteLocalCheckin(id);
     var left = r.sub.sub_type === 'sessions' ? r.remaining + (r.remaining === 1 ? ' session left' : ' sessions left') : r.remaining + (r.remaining === 1 ? ' day left' : ' days left');
     toast(who.name + ' came — ' + left, 'ok'); beep(true);
     if (ui.route.page === 'daily' && hooks.render) hooks.render();   /* the arrivals list shows the new visit */
   } catch (e) {
     if (e && e.signedOut) return;
+    if (e && e.denied) noteLocalCheckin(id);   /* the red toast below is this device's notice of the refusal */
     toast(e && e.message ? e.message : 'Something went wrong.', 'err'); beep(false);
   }
   S.stab.reset(); S.buf = [];

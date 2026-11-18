@@ -16,6 +16,8 @@ import I18N from './i18n.js';
     "Bek Sport Gym: daily report": "Bek Sport Gym: kunlik hisobot", "Members came yesterday": "Kecha kelgan a'zolar", "Day passes yesterday": "Kecha bir kunliklar", "Revenue yesterday": "Kecha tushum",
     "Hour": "Soat", "Left / Amount (UZS)": "Qolgan / Summa (so'm)", "New members": "Yangi a'zolar", "Notifications": "Bildirishnomalar", "Mark all as read": "Hammasini o'qilgan deb belgilash",
     "All arrivals": "Barcha kelganlar", "No arrivals yet today": "Bugun hali hech kim kelmagan",
+    "Not let in": "Kiritilmagan", "Without a plan": "Obunasi yo'q", "Plan ended": "Mashg'ulotlari tugagan", "Membership expired": "Muddati o'tgan", "Not a training day": "Mashg'ulot kuni emas",
+    "Left / Amount (UZS) / Reason": "Qolgan / Summa (so'm) / Sabab",
     "Camera on": "Kamera yoqish", "Camera off": "Kamera o'chirish", "Show camera": "Kamerani ko'rsatish", "Hide camera": "Kamerani yashirish",
     "Keep this tab open": "Bu oynani ochiq qoldiring", "best": "eng yaqin",
 
@@ -276,6 +278,7 @@ import I18N from './i18n.js';
   /* dynamic text. Order matters: the first match wins. */
   function pat(re, fn) { P.push([re, fn]); }
 
+  pat(/^(.+) came \u2014 not let in: (.+)$/, function (m, T) { return m[1] + " keldi \u2014 kiritilmadi: " + T(m[2]).toLowerCase(); });
   pat(/^(.+) vs yesterday$/, function (m) { return m[1] + " kechaga nisbatan"; });
   pat(/^(.+) came · (\d\d:\d\d)$/, function (m) { return m[1] + " keldi · " + m[2]; });
 

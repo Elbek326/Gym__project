@@ -4,6 +4,7 @@ import { hooks, modals, session, ui } from './state.js';
 import { $, esc } from './ui/html.js';
 import { ic } from './ui/icons.js';
 import { avatar } from './ui/parts.js';
+import { denyText } from './pages/daily.js';
 import { toast } from './ui/toast.js';
 
 /* ===== arrival notifications =====
@@ -15,7 +16,7 @@ const POLL_MS = 12000;
 const KEEP = 30;            /* notifications kept in the list */
 const LOCAL_MS = 90000;     /* a check-in made on this device is not toasted again by the poll for this long */
 
-var N = { on: false, timer: null, busy: false, date: null, seen: new Set(), list: [], unread: new Set(), local: new Map(), open: false, wired: false };
+var N = { on: false, timer: null, busy: false, date: null, seen: new Set(), seenD: new Set(), list: [], unread: new Set(), local: new Map(), open: false, wired: false };
 
 function wanted() { return !!(session.user && G.isStaff(session.user)); }
 
@@ -26,7 +27,7 @@ export function syncNotify() {
   var b = $('#bell-btn');
   if (!wire()) return;
   if (wanted()) { b.hidden = false; if (!N.on) { N.on = true; poll(); } }
-  else { N.on = false; clearTimeout(N.timer); N.timer = null; N.date = null; N.seen = new Set(); N.list = []; N.unread = new Set(); closePanel(); b.hidden = true; }
+  else { N.on = false; clearTimeout(N.timer); N.timer = null; N.date = null; N.seen = new Set(); N.seenD = new Set(); N.list = []; N.unread = new Set(); closePanel(); b.hidden = true; }
   drawBell();
 }
 
@@ -59,7 +60,7 @@ async function poll() {
 function absorb(D) {
   var visits = (D.visits || []).filter(function (v) { return v.member; }), fresh = [];
   var first = N.date !== D.date;   /* the first poll, or the day changed: only remember */
-  if (first) { N.date = D.date; N.seen = new Set(); N.list = []; N.unread = new Set(); }
+  if (first) { N.date = D.date; N.seen = new Set(); N.seenD = new Set(); N.list = []; N.unread = new Set(); }
   visits.forEach(function (v) { if (!N.seen.has(v.id)) { N.seen.add(v.id); fresh.push(v); } });
   fresh.sort(function (a, b) { return a.time < b.time ? -1 : a.time > b.time ? 1 : 0; });   /* oldest first, so the newest ends on top */
   var now = Date.now(), shown = 0;
@@ -70,9 +71,20 @@ function absorb(D) {
     N.unread.add(v.id);
     if (++shown <= 3) toast(v.member.name + ' came · ' + v.time, 'ok');   /* a burst (e.g. after being offline) does not flood the screen; the bell lists all */
   });
+  /* recognised at the door but not let in: a warning toast and a warn-coloured row */
+  var freshD = [];
+  (D.denied || []).filter(function (x) { return x.member; }).forEach(function (x) { if (!N.seenD.has(x.id)) { N.seenD.add(x.id); freshD.push(x); } });
+  freshD.sort(function (a, b) { return a.time < b.time ? -1 : a.time > b.time ? 1 : 0; });
+  freshD.forEach(function (x) {
+    N.list.unshift({ id: 'd' + x.id, time: x.time, member: x.member, denied: x.reason });
+    if (first) return;
+    if (now - (N.local.get(x.member.id) || 0) < LOCAL_MS) return;
+    N.unread.add('d' + x.id);
+    if (++shown <= 3) toast(x.member.name + ' came \u2014 not let in: ' + denyText(x.reason), 'err');
+  });
   if (N.list.length > KEEP) N.list.length = KEEP;
   drawBell();
-  if (!first && fresh.length) refreshPage();
+  if (!first && (fresh.length || freshD.length)) refreshPage();
 }
 
 /* the dashboard and the arrivals page show today's check-ins: draw them again, unless a form is open; scroll stays */
@@ -106,8 +118,8 @@ function drawPanel() {
   if (!p) { p = document.createElement('div'); p.id = 'bell-panel'; p.className = 'bell-panel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Notifications'); document.body.appendChild(p); }
   p.innerHTML = '<header><b>Notifications</b><button type="button" class="btn btn-sm" data-act="bellRead"' + (N.unread.size ? '' : ' disabled') + '>Mark all as read</button></header>' +
     (N.list.length ? '<div class="list">' + N.list.map(function (r) {
-      return '<button type="button" class="bell-row' + (N.unread.has(r.id) ? ' unread' : '') + '" data-act="bellOpen" data-id="' + esc(r.member.id) + '">' + avatar(r.member) +
-        '<span class="grow">' + esc(r.member.name) + '</span><span class="mono muted">' + esc(r.time) + '</span></button>';
+      return '<button type="button" class="bell-row' + (N.unread.has(r.id) ? ' unread' : '') + (r.denied ? ' denied' : '') + '" data-act="bellOpen" data-id="' + esc(r.member.id) + '">' + avatar(r.member) +
+        '<span class="grow">' + esc(r.member.name) + (r.denied ? '<small class="deny">' + denyText(r.denied) + '</small>' : '') + '</span><span class="mono muted">' + esc(r.time) + '</span></button>';
     }).join('') + '</div>' : '<div class="empty"><b>No arrivals yet today</b></div>') +
     '<footer><button type="button" class="btn btn-sm" data-act="bellAll">All arrivals</button></footer>';
 }
