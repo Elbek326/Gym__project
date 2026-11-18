@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MARGIN, STABLE_NEED, STABLE_WINDOW, THRESHOLD, createStabilizer, distance, matchFace, rank } from '../match.js';
+import { CONSISTENT, MARGIN, STABLE_NEED, STABLE_WINDOW, THRESHOLD, createStabilizer, distance, matchFace, mean, normalise, prepareMembers, rank, smooth } from '../match.js';
 
 /* a 128-d vector that is `x` at the first position and 0 elsewhere: the distance between two of them is |x1 - x2| */
 function v(x) { var a = new Array(128).fill(0); a[0] = x; return a; }
@@ -104,5 +104,44 @@ describe('createStabilizer', () => {
   it('honours custom need and window', () => {
     var s = createStabilizer(3, 3);
     s.push('a'); s.push('a'); expect(s.push('a')).toBe('a');
+  });
+});
+
+describe('mean / normalise / smooth', () => {
+  it('mean is element-wise', () => {
+    expect(mean([v(0.2), v(0.4)])[0]).toBeCloseTo(0.3, 10);
+    expect(mean([])).toBeNull();
+  });
+  it('normalise gives unit length and keeps a zero vector', () => {
+    var n = normalise([3, 4]);
+    expect(n[0]).toBeCloseTo(0.6, 10); expect(n[1]).toBeCloseTo(0.8, 10);
+    expect(normalise([0, 0])).toEqual([0, 0]);
+  });
+  it('smooth averages consistent frames and re-normalises', () => {
+    var a = normalise([1, 0.1]), b = normalise([1, -0.1]);
+    var s = smooth([a, b]);
+    expect(Math.hypot(s[0], s[1])).toBeCloseTo(1, 10);
+    expect(s[1]).toBeCloseTo(0, 10);
+  });
+  it('smooth leaves out a frame that is too far from the newest', () => {
+    var far = [1, 0], near1 = [0, 1], near2 = [0, 1];
+    expect(distance(far, near2)).toBeGreaterThan(CONSISTENT);
+    expect(smooth([far, near1, near2])).toEqual([0, 1]);
+    expect(smooth([far])).toBe(far);
+    expect(smooth([])).toBeNull();
+  });
+});
+
+describe('prepareMembers + rank with the mean shot', () => {
+  it('caches a mean only for members with 2+ shots', () => {
+    var p = prepareMembers([{ id: 'a', descriptors: [v(0.2), v(0.6)] }, { id: 'b', descriptors: [v(0.5)] }]);
+    expect(p[0].mean).not.toBeNull(); expect(p[1].mean).toBeNull();
+  });
+  it('a live face between two shots is closer to the mean than to either shot', () => {
+    var a = [1, 0, 0], b = [0, 1, 0], live = normalise([1, 1, 0]);
+    var raw = [{ id: 'a', descriptors: [a, b] }];
+    var withMean = prepareMembers(raw);
+    expect(rank(live, withMean)[0].distance).toBeLessThan(rank(live, raw)[0].distance);
+    expect(rank(live, withMean)[0].distance).toBeCloseTo(0, 10);
   });
 });

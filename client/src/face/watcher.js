@@ -7,7 +7,7 @@ import { ic } from '../ui/icons.js';
 import { toast } from '../ui/toast.js';
 import { startCamera, stopCamera } from './camera.js';
 import { detectFaces, loadEngine } from './engine.js';
-import { createStabilizer, matchFace } from './match.js';
+import { CONSISTENT, createStabilizer, distance, matchFace, prepareMembers, smooth } from './match.js';
 
 /* ===== the background camera =====
    While a STAFF user is signed in on this device and PREFS.faceCam is on, a small floating preview runs the camera on every
@@ -17,9 +17,11 @@ import { createStabilizer, matchFace } from './match.js';
 const INTERVAL = 300;       /* ms between detections */
 const COOLDOWN = 60000;     /* the same member is not sent again for this long */
 const RELOAD_MS = 60000;    /* the enrolled faces are fetched again this often while the camera runs */
+const NO_FACE_MS = 1000;    /* no face for longer than this empties the averaging buffer */
+const AVG_FRAMES = 3;       /* descriptors of this many recent single-face frames are averaged */
 const MIN_FACE = 0.08;      /* faces narrower than this share of the frame width are background people and are ignored */
 
-var S = { token: 0, starting: false, stream: null, timer: null, reloadTimer: null, faces: [], ready: false, folded: false, cool: new Map(), stab: createStabilizer(), status: '', diag: '', camError: null, note: '', audio: null, built: false };
+var S = { token: 0, starting: false, stream: null, timer: null, reloadTimer: null, faces: [], ready: false, folded: false, cool: new Map(), stab: createStabilizer(), buf: [], lastFace: 0, status: '', diag: '', camError: null, note: '', audio: null, built: false };
 
 /* the person at the keyboard may use the camera: staff only, and only when they switched it on */
 function wanted() { return !!(session.user && G.isStaff(session.user) && PREFS.faceCam); }
@@ -56,20 +58,21 @@ export function retryCamera() { stop(); if (wanted()) start(); drawWidget(); }
 function stop() {
   S.token++; S.starting = false; clearTimeout(S.timer); S.timer = null; clearInterval(S.reloadTimer); S.reloadTimer = null;
   stopCamera(S.stream, $('#fcam-video')); S.stream = null; S.ready = false;
-  S.status = ''; S.diag = ''; S.camError = null; S.note = ''; S.stab.reset();
+  S.status = ''; S.diag = ''; S.camError = null; S.note = ''; S.stab.reset(); S.buf = [];
   /* the cooldown list is kept: switching the camera off and on does not re-send the person standing there */
 }
 
 /* the enrolled faces (id, name, image, descriptors) used for matching; also called right after an enrolment */
 export async function refreshFaces() {
   if (!wanted()) return;
-  try { S.faces = await api.get('/api/faces'); } catch (e) { /* keep the old list; try again in a minute */ }
+  try { S.faces = prepareMembers(await api.get('/api/faces')); }   /* the mean of each member's shots is computed here, once */
+  catch (e) { /* keep the old list; try again in a minute */ }
   drawStatus();
 }
 
 async function start() {
   var my = ++S.token, video = $('#fcam-video');
-  S.starting = true; S.camError = null; S.ready = false; S.stab.reset(); S.status = ''; S.diag = '';
+  S.starting = true; S.camError = null; S.ready = false; S.stab.reset(); S.buf = []; S.status = ''; S.diag = '';
   note('Starting the camera');
   var faces = refreshFaces();
   var engine = loadEngine(); engine.catch(function () { /* reported below */ });   /* the models load while the permission is asked */
@@ -102,10 +105,18 @@ async function detectOnce(my) {
   var faces = await detectFaces(video);
   if (my !== S.token) return;
   var real = faces.filter(function (f) { return f.size >= MIN_FACE; });
-  if (real.length > 1) { S.stab.reset(); setDiag(''); setStatus('One person at a time'); return; }
-  if (!real.length) { setDiag(''); setStatus(S.faces.length ? '' : 'No member has enrolled a face yet.'); return; }   /* no face: the streak is kept */
+  if (real.length > 1) { S.stab.reset(); S.buf = []; setDiag(''); setStatus('One person at a time'); return; }
+  if (!real.length) {   /* no face: the streak is kept, the averaging buffer only for a second */
+    if (Date.now() - S.lastFace > NO_FACE_MS) S.buf = [];
+    setDiag(''); setStatus(S.faces.length ? '' : 'No member has enrolled a face yet.'); return;
+  }
+  S.lastFace = Date.now();
   if (!S.faces.length) { setStatus('No member has enrolled a face yet.'); return; }
-  var m = matchFace(real[0].descriptor, S.faces);
+  /* average the last few single-face frames: a mean descriptor is steadier than any one frame. A different face starts over. */
+  var d = real[0].descriptor;
+  if (S.buf.length && distance(d, S.buf[S.buf.length - 1]) >= CONSISTENT) S.buf = [];
+  S.buf.push(d); if (S.buf.length > AVG_FRAMES) S.buf.shift();
+  var m = matchFace(smooth(S.buf), S.faces);
   setDiag('best: ' + (isFinite(m.distance) ? m.distance.toFixed(2) : '-') + ' (' + m.reason + ')');
   var id = S.stab.push(m.id);
   if (id) { setStatus(''); fire(id); return; }
@@ -126,7 +137,7 @@ async function fire(id) {
     if (e && e.signedOut) return;
     toast(e && e.message ? e.message : 'Something went wrong.', 'err'); beep(false);
   }
-  S.stab.reset();
+  S.stab.reset(); S.buf = [];
 }
 
 /* ----- drawing: the widget lives outside #view, so a page repaint never touches it ----- */

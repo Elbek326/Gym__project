@@ -13,13 +13,47 @@ export function distance(a, b) {
   return Math.sqrt(s);
 }
 
-/* members: [{ id, descriptors: [[128]...] }]. Returns [{ id, distance }] sorted by distance; a member's distance is
-   the smallest over their shots. Members without usable descriptors are skipped. */
+export const CONSISTENT = 0.45;   /* consecutive frames closer than this to the newest one are the same face and are averaged */
+
+/* element-wise mean of several descriptors (null for an empty list) */
+export function mean(list) {
+  if (!list || !list.length) return null;
+  var n = list[0].length, out = new Array(n).fill(0);
+  list.forEach(function (d) { for (var i = 0; i < n; i++) out[i] += d[i]; });
+  for (var i = 0; i < n; i++) out[i] /= list.length;
+  return out;
+}
+/* scale to unit length, like face-api's own descriptors (a zero vector is returned as it is) */
+export function normalise(d) {
+  var s = 0; for (var i = 0; i < d.length; i++) s += d[i] * d[i];
+  s = Math.sqrt(s);
+  return s > 0 ? d.map(function (x) { return x / s; }) : d.slice();
+}
+/* the mean of the frames that agree with the newest one (the newest is last), re-normalised.
+   Frames further than `limit` from the newest are left out, so a changed face never gets mixed in. */
+export function smooth(frames, limit) {
+  if (!frames || !frames.length) return null;
+  var last = frames[frames.length - 1], lim = limit != null ? limit : CONSISTENT;
+  var ok = frames.filter(function (f) { return f === last || distance(f, last) < lim; });
+  return ok.length === 1 ? last : normalise(mean(ok));
+}
+
+/* adds the cached average of the shots to each member ({ id, descriptors, mean }); call once when the list loads */
+export function prepareMembers(members) {
+  return (members || []).map(function (m) {
+    var ds = m.descriptors || [];
+    return Object.assign({}, m, { mean: ds.length > 1 ? normalise(mean(ds)) : null });
+  });
+}
+
+/* members: [{ id, descriptors: [[128]...], mean? }]. Returns [{ id, distance }] sorted by distance; a member's distance is
+   the smallest over their shots and their mean (see prepareMembers). Members without usable descriptors are skipped. */
 export function rank(descriptor, members) {
   var out = [];
   (members || []).forEach(function (m) {
     var best = Infinity;
     (m.descriptors || []).forEach(function (d) { var x = distance(descriptor, d); if (x < best) best = x; });
+    if (m.mean) { var xm = distance(descriptor, m.mean); if (xm < best) best = xm; }
     if (best !== Infinity) out.push({ id: m.id, distance: best });
   });
   return out.sort(function (a, b) { return a.distance - b.distance; });
