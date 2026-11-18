@@ -12,6 +12,10 @@ import I18N from './i18n.js';
     "Members came": "Kelgan a'zolar", "Day passes": "Bir kunliklar", "Day-pass income": "Bir kunlik tushum", "Walk-in guest": "Mehmon",
     "Arrivals": "Kelganlar", "No arrivals": "Hali hech kim kelmagan", "Check-ins and day passes of this day appear here.": "Shu kundagi kirishlar va bir kunlik to'lovlar shu yerda ko'rinadi.",
     "Today": "Bugun", "Name (optional)": "Ism (ixtiyoriy)", "Phone (optional)": "Telefon (ixtiyoriy)", "Enter the amount.": "Summani kiriting.",
+    "same as yesterday": "kechagidek", "Arrivals by hour": "Soatlar bo'yicha kelganlar", "Members + day passes": "A'zolar + bir kunliklar", "By hour": "Soatlar bo'yicha",
+    "Bek Sport Gym: daily report": "Bek Sport Gym: kunlik hisobot", "Members came yesterday": "Kecha kelgan a'zolar", "Day passes yesterday": "Kecha bir kunliklar", "Revenue yesterday": "Kecha tushum",
+    "Hour": "Soat", "Left / Amount (UZS)": "Qolgan / Summa (so'm)", "New members": "Yangi a'zolar", "Notifications": "Bildirishnomalar", "Mark all as read": "Hammasini o'qilgan deb belgilash",
+    "All arrivals": "Barcha kelganlar", "No arrivals yet today": "Bugun hali hech kim kelmagan",
     "Camera on": "Kamera yoqish", "Camera off": "Kamera o'chirish", "Show camera": "Kamerani ko'rsatish", "Hide camera": "Kamerani yashirish",
     "Keep this tab open": "Bu oynani ochiq qoldiring", "best": "eng yaqin",
 
@@ -271,6 +275,9 @@ import I18N from './i18n.js';
 
   /* dynamic text. Order matters: the first match wins. */
   function pat(re, fn) { P.push([re, fn]); }
+
+  pat(/^(.+) vs yesterday$/, function (m) { return m[1] + " kechaga nisbatan"; });
+  pat(/^(.+) came · (\d\d:\d\d)$/, function (m) { return m[1] + " keldi · " + m[2]; });
 
   /* sentences that start with a name */
   pat(/^(.+) already checked in today\.$/, function (m) { return m[1] + " bugun allaqachon kirgan."; });

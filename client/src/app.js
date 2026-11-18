@@ -257,7 +257,7 @@ document.addEventListener('change', function (e) {
   try {
     var k = el.dataset.change;
     if (k === 'finMonth') { if (/^\d{4}-\d{2}$/.test(el.value)) { ui.fin.ym = el.value; render(); } }
-    else if (k === 'dailyDate') { ui.daily.date = /^d{4}-d{2}-d{2}$/.test(el.value) ? el.value : ''; render(); }
+    else if (k === 'dailyDate') { ui.daily.date = /^\d{4}-\d{2}-\d{2}$/.test(el.value) ? el.value : ''; render(); }
     else if (k === 'anMonth') { if (/^\d{4}-\d{2}$/.test(el.value)) { ui.an.ym = el.value; render(); } }
     else if (k === 'setRole') { api.put('/api/admin/users/' + enc(el.dataset.id) + '/role', { role: el.value }).then(function () { toast('Role changed'); }, fail).then(render); }
     else if (k === 'restoreFile') {

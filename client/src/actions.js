@@ -5,7 +5,7 @@ import { openMemberForm, planFields, readPlan, refreshMemberList, wirePlan } fro
 import { openEnroll } from './face/enroll.js';
 import { aboutGym } from './gym-info.js';
 import { foldCamera, retryCamera, toggleCamera } from './face/watcher.js';
-import { openDayPass } from './pages/daily.js';
+import { exportDaily, openDayPass } from './pages/daily.js';
 import { hooks, ui } from './state.js';
 import { csvText, downloadFile, saveXlsx } from './ui/export.js';
 import { $, esc } from './ui/html.js';
@@ -48,6 +48,7 @@ export const ACT = {
   camFold: function () { foldCamera(); },
   camRetry: function () { retryCamera(); },
   addDayPass: function () { openDayPass(); },
+  exportDaily: function () { return exportDaily(); },
   dailyToday: function () { ui.daily.date = ''; render(); },
   faceEnroll: function (el) { openEnroll(memberById(el.dataset.id), render); },
   faceDelete: async function (el) {
