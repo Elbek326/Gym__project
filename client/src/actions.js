@@ -5,6 +5,7 @@ import { openMemberForm, planFields, readPlan, refreshMemberList, wirePlan } fro
 import { openEnroll } from './face/enroll.js';
 import { aboutGym } from './gym-info.js';
 import { foldCamera, retryCamera, toggleCamera } from './face/watcher.js';
+import { closePanel, markAllRead, toggleBell } from './notify.js';
 import { exportDaily, openDayPass } from './pages/daily.js';
 import { hooks, ui } from './state.js';
 import { csvText, downloadFile, saveXlsx } from './ui/export.js';
@@ -44,6 +45,10 @@ export const ACT = {
   toggleVisits: function () { ui.det.allVisits = !ui.det.allVisits; repaint(); },
   toggleTx: function () { ui.det.allTx = !ui.det.allTx; repaint(); },
   about: function () { aboutGym(); },
+  bellToggle: function () { toggleBell(); },
+  bellRead: function () { markAllRead(); },
+  bellOpen: function (el) { closePanel(); ACT.open(el); },
+  bellAll: function () { closePanel(); ui.daily.date = ''; ACT.nav({ dataset: { page: 'daily' } }); },
   camToggle: function () { toggleCamera(); },
   camFold: function () { foldCamera(); },
   camRetry: function () { retryCamera(); },

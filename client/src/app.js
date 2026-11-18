@@ -4,6 +4,7 @@ import I18N from './i18n/i18n.js';
 import { api, enc, net, qs } from './api.js';
 import { stopAllCameras } from './face/camera.js';
 import { syncWatcher } from './face/watcher.js';
+import { noteLocalCheckin, syncNotify } from './notify.js';
 import { refreshAuditList } from './pages/audit.js';
 import { PAGES } from './pages/index.js';
 import { refreshMemberList } from './pages/members.js';
@@ -189,10 +190,11 @@ function enterApp() {
   $('#boot').hidden = true; $('#login').hidden = true; $('#app').hidden = false;
   ui.route = { page: homePage(session.user), id: null }; shownKey = null; render(); window.scrollTo(0, 0);
   syncWatcher();   /* the background camera: only for staff, only when switched on */
+  syncNotify();    /* arrival notifications: staff only */
 }
 /* back to the login screen: after sign-out, a restore, or a session that ended */
 function leaveApp() {
-  session.user = null; syncWatcher(); stopAllCameras();   /* no camera stays on after sign-out, even one inside a modal that is removed below */
+  session.user = null; syncWatcher(); syncNotify(); stopAllCameras();   /* no camera stays on after sign-out, even one inside a modal that is removed below */
   renderSeq++; shownKey = null; ui.data = null;
   modals.slice().forEach(function (w) { w.remove(); }); modals.length = 0;
   $('#qci-q').value = ''; $('#qci-list').innerHTML = '';
@@ -213,6 +215,7 @@ async function doCheckIn(id) {
   try {
     var r = await api.post('/api/members/' + enc(id) + '/checkin');
     var left = r.sub.sub_type === 'sessions' ? r.remaining + ' sessions left' : r.remaining + ' days left';
+    noteLocalCheckin(id);
     toast(r.client.name + ' checked in. ' + left + '.');
     render();
   } catch (e) { fail(e); }

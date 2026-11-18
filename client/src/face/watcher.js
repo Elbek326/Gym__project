@@ -2,6 +2,7 @@ import G from '../core/gym.js';
 import { api, enc } from '../api.js';
 import { PREFS, savePrefs } from '../prefs.js';
 import { hooks, session, ui } from '../state.js';
+import { noteLocalCheckin } from '../notify.js';
 import { $, esc } from '../ui/html.js';
 import { ic } from '../ui/icons.js';
 import { toast } from '../ui/toast.js';
@@ -130,6 +131,7 @@ async function fire(id) {
   S.cool.set(id, now + COOLDOWN);
   try {
     var r = await api.post('/api/members/' + enc(id) + '/checkin');
+    noteLocalCheckin(id);
     var left = r.sub.sub_type === 'sessions' ? r.remaining + (r.remaining === 1 ? ' session left' : ' sessions left') : r.remaining + (r.remaining === 1 ? ' day left' : ' days left');
     toast(who.name + ' came — ' + left, 'ok'); beep(true);
     if (ui.route.page === 'daily' && hooks.render) hooks.render();   /* the arrivals list shows the new visit */

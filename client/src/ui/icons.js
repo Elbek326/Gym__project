@@ -19,6 +19,7 @@ export const ICONS = {
   upload: '<path d="M12 16V5M7.5 9L12 4.5 16.5 9M5 20h14"/>',
   x: '<path d="M6 6l12 12M18 6L6 18"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  bell: '<path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15L6 17z"/><path d="M10 21a2 2 0 0 0 4 0"/>',
   camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4V8z"/><circle cx="12" cy="13" r="3.5"/>',
   out: '<path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h9"/>',
   back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
