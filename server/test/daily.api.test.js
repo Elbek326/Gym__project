@@ -34,7 +34,8 @@ describe.runIf(hasDb)("today's arrivals API", () => {
 
   it('is empty on a quiet day', async () => {
     const d = (await admin.get('/api/daily')).body;
-    expect(d).toEqual({ date: today, visits: [], dayPasses: [], totals: { visits: 0, dayPasses: 0, dayPassAmount: 0 } });
+    expect(d).toMatchObject({ date: today, visits: [], dayPasses: [], totals: { visits: 0, dayPasses: 0, dayPassAmount: 0 } });
+    expect(d.stats).toMatchObject({ revenue: 0, expenses: 0, profit: 0 });
   });
 
   it('lists members who checked in today, with what is left on their plan', async () => {
@@ -55,6 +56,17 @@ describe.runIf(hasDb)("today's arrivals API", () => {
     expect(d.totals).toEqual({ visits: 1, dayPasses: 2, dayPassAmount: 55000 });
     const f = (await admin.get('/api/finance?month=' + today.slice(0, 7))).body;
     expect(f.totals.income).toBe(55000);
+  });
+
+  it('daily statistics: money, new members, arrivals per hour, yesterday', async () => {
+    await admin.post(`/api/members/${ali}/payments`, { amount: '100000' });
+    await admin.post('/api/finance/expenses', { category: 'rent', amount: '20000', date: today });
+    const s = (await admin.get('/api/daily')).body.stats;
+    expect(s).toMatchObject({ newMembers: 1, payments: 100000, income: 55000, sales: 0, revenue: 155000, expenses: 20000, profit: 135000 });
+    expect(s.byHour).toHaveLength(24);
+    expect(s.byHour.reduce((n, h) => n + h.visits, 0)).toBe(1);
+    expect(s.byHour.reduce((n, h) => n + h.dayPasses, 0)).toBe(2);
+    expect(s.yesterday).toEqual({ visits: 0, dayPasses: 0, revenue: 0 });
   });
 
   it('refuses a missing amount and a bad date', async () => {

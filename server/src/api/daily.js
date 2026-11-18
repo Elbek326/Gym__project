@@ -32,9 +32,45 @@ dailyRouter.get('/', async (req, res) => {
       .sort((a, b) => b.created_at.localeCompare(a.created_at))
       .map((t) => ({ id: t.id, time: t.created_at.slice(11, 16), name: t.note || '', amount: t.amount, note: t.note || '' }));
     const amount = dayPasses.reduce((s, p) => s + p.amount, 0);
-    return { date, visits, dayPasses, totals: { visits: visits.length, dayPasses: dayPasses.length, dayPassAmount: Math.round(amount * 100) / 100 } };
+    return {
+      date, visits, dayPasses,
+      totals: { visits: visits.length, dayPasses: dayPasses.length, dayPassAmount: r2(amount) },
+      stats: dayStats(G, date)
+    };
   }));
 });
+
+function r2(x) { return Math.round(x * 100) / 100; }
+function isDayPass(t) { return t.txn_type === 'income' && t.category === 'day pass'; }
+
+/* one day in numbers: arrivals, money in and out, new members, arrivals per hour, and yesterday for comparison */
+function dayStats(G, date) {
+  const sum = (list, f) => r2(list.reduce((s, x) => s + f(x), 0));
+  const txns = G.values('txns').filter((t) => t.d === date);
+  const payments = sum(txns.filter((t) => t.txn_type === 'payment'), (t) => t.amount);
+  const income = sum(txns.filter((t) => t.txn_type === 'income'), (t) => t.amount);
+  const sales = sum(G.values('sales').filter((s) => s.d === date), (s) => s.total);
+  const expenses = sum(G.values('expenses').filter((e) => e.date === date), (e) => e.amount);
+  const revenue = r2(payments + income + sales);
+
+  const byHour = Array.from({ length: 24 }, (_, hour) => ({ hour, visits: 0, dayPasses: 0 }));
+  G.values('visits').forEach((v) => { if (v.visit_date === date) byHour[+v.visit_time.slice(0, 2)].visits++; });
+  txns.forEach((t) => { if (isDayPass(t)) byHour[+t.created_at.slice(11, 13)].dayPasses++; });
+
+  const y = G.addDays(date, -1);
+  const yTxns = G.values('txns').filter((t) => t.d === y);
+  const yesterday = {
+    visits: G.values('visits').filter((v) => v.visit_date === y).length,
+    dayPasses: yTxns.filter(isDayPass).length,
+    revenue: r2(sum(yTxns.filter((t) => t.txn_type === 'payment' || t.txn_type === 'income'), (t) => t.amount)
+      + sum(G.values('sales').filter((s) => s.d === y), (s) => s.total))
+  };
+
+  return {
+    newMembers: G.values('clients').filter((c) => c.created_at.slice(0, 10) === date).length,
+    revenue, payments, income, sales, expenses, profit: r2(revenue - expenses), byHour, yesterday
+  };
+}
 
 /* POST /api/daily/day-pass { name?, phone?, amount } → the new entry, timed now */
 dailyRouter.post('/day-pass', async (req, res) => {
