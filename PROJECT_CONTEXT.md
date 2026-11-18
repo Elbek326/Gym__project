@@ -244,6 +244,42 @@ Eslatma: ma'lumot yoki qoidaga oid o'zgarishlar saytda server qismini ham talab 
 1. Face ID bo'yicha qaror: saytda qurilsinmi, tasdiqlash usuli qanday.
 2. "Zal haqida" → "saytga o'tkaz" kutilmoqda.
 
+## Sessiyalar: 2026-11-17 — 2026-11-18 (Face ID, kunlik statistika)
+
+Barchasi saytda (client/ + server/), GitHub'da (`432bf51`). Artifactda kamera yo'q, shuning uchun bu ishlar to'g'ridan saytda qilindi.
+
+- **"Zal haqida" saytda** (`7a71310`): `client/src/gym-info.js` (GYM_INFO), login sahifasi va yon menyu.
+- **Face ID — server:**
+  - `migrations/003_faces.sql` (faces: descriptors JSONB, consent_at; rasm saqlanmaydi, zaxiraga kirmaydi);
+  - `GET /api/faces`, `GET/PUT/DELETE /api/members/:id/face` (faqat xodim, rozilik majburiy).
+- **Face ID — client:**
+  - `@vladmandic/face-api`: SSD MobileNet v1 + to'liq 68 landmark + recognition.
+  - Modellar build vaqtida `client/public/models` ga nusxalanadi (git'da yo'q), ~12 MB.
+  - Profilda 5 suratli ro'yxatga olish.
+  - **Fon kamerasi** (`client/src/face/watcher.js`): topbar tugmasi, burchakda kichik oyna, avtomatik check-in (`source:'face'`), toast, beep.
+  - Moslashtirish (`face/match.js`): THRESHOLD 0.55, MARGIN 0.08, 2/3 kadr, 3 kadr o'rtachasi, a'zo suratlarining o'rtachasi, cooldown 60 s, MIN_FACE 0.08.
+  - Kamera oynasida diagnostika: "eng yaqin: 0.xx".
+- **Bugun kelganlar** (`client/src/pages/daily.js`, `GET /api/daily?date=`):
+  - kelgan a'zolar, bir kunliklar, kiritilmaganlar;
+  - stats: yangi a'zolar, tushum, xarajat, foyda, soatlar bo'yicha, kecha bilan solishtirish;
+  - Excel eksport.
+- **Bir kunlik:** `POST /api/daily/day-pass` → 'day pass' daromad (izohda ism · telefon). Narx `client/src/config.js` da: DAY_PASS_PRICE = 30000.
+- **Kiritilmaganlar:** `migrations/004_denied_arrivals.sql`.
+  - Kamera tanigan, lekin check-in rad etilgan a'zo (muzlatilgan, obunasiz, muddati o'tgan, mashg'ulotlari tugagan, mashg'ulot kuni emas) kuniga bir marta yoziladi.
+  - "Bugun allaqachon kirgan" va qo'lda check-in yozilmaydi.
+- **Bildirishnomalar** (`client/src/notify.js`): har 12 s `/api/daily` so'raladi; yangi kelganlar uchun toast va topbar qo'ng'iroqchasi; dashboard o'zi yangilanadi.
+- **Tuzatishlar:**
+  - core `addIncome` sana berilmasa haqiqiy vaqtni yozadi;
+  - server xotirasi a'zo/obuna/foydalanuvchi o'chirilgandan keyin bazadan qayta yuklanadi (CASCADE xatosi, `432bf51`);
+  - daily sahifasidagi sana regex xatosi.
+- **Testlar:** client 212, server 73.
+
+### Keyingi sessiya shu bilan boshlanadi
+1. Foydalanuvchi kamera sinovi natijasini aytadi: tanidimi, "eng yaqin" raqami nechchi.
+   → Kerak bo'lsa THRESHOLD'ni sozlash (`client/src/face/match.js`).
+2. Eslatma: eski yuz ro'yxatlari yangi detektor bilan qayta ro'yxatga olinishi kerak.
+3. Sinalmagan: haqiqiy kamera bilan butun zanjir; a'zo roli bilan kirish; 4 ta look.
+
 ### Keyingi sessiya (eski ro'yxat, 1-2 bandlar bajarildi)
 1. (Ixtiyoriy) GitHub repo yaratib push qilish.
 2. **Bosqich 1:** `legacy/gym-artifact.html` ni `client/` dagi Vite loyihasiga bo'lish:
