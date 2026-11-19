@@ -8,7 +8,7 @@ import { ic } from '../ui/icons.js';
 import { toast } from '../ui/toast.js';
 import { startCamera, stopCamera } from './camera.js';
 import { detectFaces, loadEngine } from './engine.js';
-import { CONSISTENT, createStabilizer, distance, matchFace, prepareMembers, smooth } from './match.js';
+import { CONSISTENT, MARGIN, createStabilizer, distance, matchFace, prepareMembers, smooth } from './match.js';
 
 /* ===== the background camera =====
    While a STAFF user is signed in on this device and PREFS.faceCam is on, a small floating preview runs the camera on every
@@ -20,6 +20,7 @@ const COOLDOWN = 60000;     /* the same member is not sent again for this long *
 const RELOAD_MS = 60000;    /* the enrolled faces are fetched again this often while the camera runs */
 const NO_FACE_MS = 1000;    /* no face for longer than this empties the averaging buffer */
 const AVG_FRAMES = 3;       /* descriptors of this many recent single-face frames are averaged */
+const LEARN_DIST = 0.45;    /* a check-in this sure of the member teaches the server the new view (see learn below) */
 const MIN_FACE = 0.08;      /* faces narrower than this share of the frame width are background people and are ignored */
 
 var S = { token: 0, starting: false, stream: null, timer: null, reloadTimer: null, faces: [], ready: false, folded: false, cool: new Map(), stab: createStabilizer(), buf: [], lastFace: 0, status: '', diag: '', camError: null, note: '', audio: null, built: false };
@@ -117,18 +118,20 @@ async function detectOnce(my) {
   var d = real[0].descriptor;
   if (S.buf.length && distance(d, S.buf[S.buf.length - 1]) >= CONSISTENT) S.buf = [];
   S.buf.push(d); if (S.buf.length > AVG_FRAMES) S.buf.shift();
-  var m = matchFace(smooth(S.buf), S.faces);
+  var sm = smooth(S.buf), m = matchFace(sm, S.faces);
   setDiag('best: ' + (isFinite(m.distance) ? m.distance.toFixed(2) : '-') + ' (' + m.reason + ')');
   var id = S.stab.push(m.id);
-  if (id) { setStatus(''); fire(id); return; }
+  if (id) { setStatus(''); fire(id, { descriptor: sm, distance: m.distance, margin: m.margin }); return; }
   setStatus(m.id ? 'Recognising' : 'Not recognised');
 }
 
-async function fire(id) {
+/* sure = { descriptor, distance, margin } of the winning frame */
+async function fire(id, sure) {
   var who = S.faces.find(function (f) { return f.id === id; }); if (!who) return;
   var now = Date.now();
   if ((S.cool.get(id) || 0) > now) return;
   S.cool.set(id, now + COOLDOWN);
+  learn(id, sure);   /* once per cooldown, so at most once per check-in */
   try {
     var r = await api.post('/api/members/' + enc(id) + '/checkin', { source: 'face' });
     noteLocalCheckin(id);
@@ -141,6 +144,15 @@ async function fire(id) {
     toast(e && e.message ? e.message : 'Something went wrong.', 'err'); beep(false);
   }
   S.stab.reset(); S.buf = [];
+}
+
+/* self-learning: a confident match (close and clearly ahead of the runner-up) sends its smoothed descriptor to the server, which
+   keeps it as one more view of the member (enrolment shots stay untouched, near-duplicates are skipped, 20 views at most).
+   Fire and forget: a failure only means this view is not learned. After a successful add the face list is fetched again. */
+function learn(id, sure) {
+  if (!sure || !sure.descriptor || !(sure.distance < LEARN_DIST) || !(sure.margin >= MARGIN)) return;
+  api.post('/api/members/' + enc(id) + '/face/learn', { descriptor: sure.descriptor })
+    .then(function (r) { if (r && r.added) refreshFaces(); }, function () { /* not learned this time */ });
 }
 
 /* ----- drawing: the widget lives outside #view, so a page repaint never touches it ----- */

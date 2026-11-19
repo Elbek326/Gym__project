@@ -1,8 +1,8 @@
 /* ===== face matching: pure functions, no DOM and no library =====
-   A descriptor is an array of 128 numbers. A member has 1 to 5 of them (one per enrolment shot).
+   A descriptor is an array of 128 numbers. A member has 1 to 8 enrolment shots plus learned ones (see POST /members/:id/face/learn).
    The reception screen compares a live descriptor with every enrolled member and accepts a match only when it is
    both close (THRESHOLD) and clearly better than the runner-up (MARGIN), and only after it won 2 of the last 3 frames. */
-export const THRESHOLD = 0.55;    /* euclidean distance below which a face counts as the same person (face-api's own default is 0.6) */
+export const THRESHOLD = 0.6;     /* euclidean distance below which a face counts as the same person (face-api's own default; MARGIN guards against look-alikes) */
 export const MARGIN = 0.08;       /* the second-best member must be at least this much further away than the best */
 export const STABLE_NEED = 2;     /* the same member must win this many of the last STABLE_WINDOW frames ... */
 export const STABLE_WINDOW = 3;   /* ... counted over this many frames that had a face */

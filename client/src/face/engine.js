@@ -1,3 +1,5 @@
+import { estimatePose } from './pose.js';
+
 /* ===== the face-api wrapper =====
    The library (tfjs inside, ~1.3 MB) is loaded with a dynamic import() the first time a face page needs it, so the main
    bundle does not grow. Models come from /models (copied from node_modules at build time, see scripts/copy-models.mjs). */
@@ -19,11 +21,12 @@ export function loadEngine() {
 }
 
 var OPTS = null;
-/* all faces in the video frame: [{ size, descriptor }] where size = box width as a share of the frame width (0..1) */
+/* all faces in the video frame: [{ size, descriptor, pose }] where size = box width as a share of the frame width (0..1)
+   and pose = { yaw, pitch } estimated from the 68 landmarks (see pose.js), or null */
 export async function detectFaces(video) {
   if (!faceapi) throw new Error('The face engine is not loaded.');
   if (!OPTS) OPTS = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5, maxResults: 3 });
   var w = video.videoWidth || 1;
   var res = await faceapi.detectAllFaces(video, OPTS).withFaceLandmarks(false).withFaceDescriptors();
-  return res.map(function (r) { return { size: r.detection.box.width / w, descriptor: Array.from(r.descriptor) }; });
+  return res.map(function (r) { return { size: r.detection.box.width / w, descriptor: Array.from(r.descriptor), pose: estimatePose(r.landmarks && r.landmarks.positions) }; });
 }

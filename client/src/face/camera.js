@@ -8,7 +8,7 @@ export async function startCamera(video) {
   }
   var stream;
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } });
+    stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } });
   } catch (e) { throw new Error(cameraMessage(e)); }
   open.add(stream);
   video.muted = true; video.playsInline = true; video.srcObject = stream;

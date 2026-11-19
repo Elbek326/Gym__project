@@ -45,12 +45,14 @@ import I18N from './i18n.js';
     "The camera is still starting. Try again in a moment.": "Kamera hali ishga tushmoqda. Birozdan so'ng qayta urinib ko'ring.",
     "No clear face was found. Face the camera in good light and try again.": "Aniq yuz topilmadi. Yorug' joyda kameraga qarab, qayta urinib ko'ring.",
     "Face detection failed. Reload the page and try again.": "Yuzni aniqlab bo'lmadi. Sahifani yangilab, qayta urinib ko'ring.",
-    "Look straight at the camera": "To'g'ri kameraga qarang", "Turn your head slightly to the left": "Boshingizni chapga biroz buring",
-    "Turn your head slightly to the right": "Boshingizni o'ngga biroz buring", "Look straight again": "Yana to'g'ri qarang", "Tilt your head slightly up": "Boshingizni biroz yuqoriga ko'taring",
+    "Look straight at the camera": "To'g'ri kameraga qarang", "Turn your head to the left": "Boshingizni chapga buring", "Turn your head to the right": "Boshingizni o'ngga buring",
+    "Tilt your head up": "Boshingizni yuqoriga ko'taring", "Tilt your head down": "Boshingizni pastga eging",
+    "Turn your head slightly to the left": "Boshingizni chapga biroz buring",
+    "Turn your head slightly to the right": "Boshingizni o'ngga biroz buring", "Look straight again": "Yana to'g'ri qarang", 
     "Look at the camera": "Kameraga qarang", "No face found. Look at the camera": "Yuz topilmadi. Kameraga qarang", "One person at a time.": "Bir vaqtda bitta odam.",
     "Come a little closer": "Biroz yaqinroq keling", "The face changed. Keep the same person in front of the camera": "Yuz almashdi. Kamera oldida bir xil odam turishi kerak",
     "Face saved": "Yuz saqlandi", "Face data deleted": "Yuz ma'lumoti o'chirildi",
-    "Take 1 to 5 face shots.": "1 tadan 5 tagacha yuz kadrini oling.", "The face data is not valid. Try again.": "Yuz ma'lumoti yaroqsiz. Qayta urinib ko'ring.",
+    "Take 1 to 8 face shots.": "1 tadan 8 tagacha yuz kadrini oling.", "This member has no face enrolled.": "Bu a'zoning yuzi ro'yxatga olinmagan.", "The face data is not valid. Try again.": "Yuz ma'lumoti yaroqsiz. Qayta urinib ko'ring.",
     "The member must agree to face check-in first.": "Avval a'zo yuz bilan kirishga rozi bo'lishi kerak.",
 
     /* navigation and pages */
