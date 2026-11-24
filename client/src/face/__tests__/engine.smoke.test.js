@@ -9,9 +9,8 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
    The test skips itself when the models were not downloaded (run scripts/fetch-models.mjs). */
 const dir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'public', 'models');
 const FILES = ['face_detection_yunet_2023mar.onnx', 'face_recognition_sface_2021dec.onnx'];
-/* Node's interop would also expose the package's `then` as a named export of the namespace, which makes `await import()` hang or throw;
-   a real bundler (Vite) gives only `default`. This mock gives the engine the same shape as in the browser. */
-vi.mock('@techstark/opencv-js', () => ({ default: createRequire(import.meta.url)('@techstark/opencv-js') }));
+/* in the browser the engine loads opencv.js with a <script> tag; here it is handed the package through setOpenCvLoader */
+const openCv = () => Promise.resolve({ default: createRequire(import.meta.url)('@techstark/opencv-js') });
 const have = FILES.every((f) => existsSync(join(dir, f)));
 
 /* a stand-in for the browser: a video of the given size and a canvas that returns a fixed synthetic image */
@@ -35,6 +34,7 @@ describe.runIf(have)('OpenCV engine smoke test', () => {
   beforeAll(async () => {
     fakeBrowser((d, w, h) => { for (var i = 0; i < w * h; i++) { d[4 * i] = 120; d[4 * i + 1] = 130; d[4 * i + 2] = 140; d[4 * i + 3] = 255; } });
     engine = await import('../engine.js');
+    engine.setOpenCvLoader(openCv);
     await engine.loadEngine();
   }, 120000);
   afterAll(() => { vi.unstubAllGlobals(); });

@@ -1,3 +1,4 @@
+import OPENCV_URL from '@techstark/opencv-js/dist/opencv.js?url';
 import { SIZE, alignMatrix } from './align.js';
 import { normalise } from './match.js';
 import { estimatePose } from './pose.js';
@@ -18,6 +19,24 @@ const SCORE = 0.8, NMS = 0.3, TOP_K = 50, MAX_FACES = 3;
 const YUNET = 'face_detection_yunet_2023mar.onnx', SFACE = 'face_recognition_sface_2021dec.onnx';
 
 var loading = null, cv = null, detector = null, net = null, canvas = null, ctx = null, inSize = '';
+
+/* opencv.js is NOT bundled: the production bundler wraps a CommonJS default export in an interop object whose prototype is
+   Promise.prototype (the package exports a promise), and awaiting that object throws "Promise.prototype.then called on
+   incompatible receiver". So the file is emitted as a plain hashed asset (?url) and loaded with a <script> tag; its UMD
+   wrapper then sets window.cv (a promise of the module). Tests in Node hand the package in with setOpenCvLoader(). */
+function loadCvScript() {
+  if (window.cv) return Promise.resolve(window.cv);
+  return new Promise(function (resolve, reject) {
+    var old = document.querySelector('script[data-opencv]'); if (old) old.remove();   /* a failed earlier try */
+    var s = document.createElement('script');
+    s.src = OPENCV_URL; s.async = true; s.dataset.opencv = '1';
+    s.onload = function () { window.cv ? resolve(window.cv) : reject(new Error('opencv.js loaded but did not define cv')); };
+    s.onerror = function () { s.remove(); reject(new TypeError('network error: could not fetch opencv.js')); };
+    document.head.appendChild(s);
+  });
+}
+var loadCv = loadCvScript;
+export function setOpenCvLoader(fn) { loadCv = fn; loading = null; }
 
 async function ready(lib) {
   var c = lib.default || lib;
@@ -56,7 +75,7 @@ function dropFile(lib, name) { try { lib.FS_unlink('/' + name); } catch (e) { /*
 export function loadEngine() {
   if (!loading) {
     loading = (async function () {
-      var lib = await ready(await import('@techstark/opencv-js'));
+      var lib = await ready(await loadCv());
       var url = import.meta.env.BASE_URL + 'models/';
       await Promise.all([putModel(lib, url + YUNET, YUNET), putModel(lib, url + SFACE, SFACE)]);
       var d = new lib.FaceDetectorYN(YUNET, '', new lib.Size(DETECT_W, 360), SCORE, NMS, TOP_K, 0, 0);
