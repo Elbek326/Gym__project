@@ -64,8 +64,8 @@ describe('matchFace', () => {
 });
 
 describe('createStabilizer', () => {
-  it('uses 2 of the last 3 frames and a threshold of 0.6', () => {
-    expect(STABLE_NEED).toBe(2); expect(STABLE_WINDOW).toBe(3); expect(THRESHOLD).toBe(0.6); expect(MARGIN).toBe(0.08);
+  it('uses 2 of the last 3 frames, a threshold of 1.1 and a margin of 0.1', () => {
+    expect(STABLE_NEED).toBe(2); expect(STABLE_WINDOW).toBe(3); expect(THRESHOLD).toBe(1.1); expect(MARGIN).toBe(0.1);
   });
   it('fires when the same member wins two frames in a row', () => {
     var s = createStabilizer();

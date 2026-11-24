@@ -4,19 +4,19 @@ import { openModal } from '../ui/modal.js';
 import { toast } from '../ui/toast.js';
 import { $ } from '../ui/html.js';
 import { startCamera, stopCamera } from './camera.js';
-import { detectFaces, loadEngine } from './engine.js';
+import { MODEL, detectFaces, loadEngine } from './engine.js';
 import { distance, mean, normalise, THRESHOLD } from './match.js';
 import { poseMatches } from './pose.js';
 import { refreshFaces } from './watcher.js';
 
 /* ===== enrolment: eight automatic shots of one face in different head poses, then PUT /api/members/:id/face =====
-   Only 128 numbers per shot leave the browser; the picture itself is never kept or sent. */
+   Only 128 numbers per shot (SFace, tagged with the model name) leave the browser; the picture itself is never kept or sent. */
 export const SHOTS = 8;
 const MIN_SIZE = 0.15;      /* the face must fill at least this share of the frame width */
 const PAUSE = 800;          /* ms between two shots, so they are not the same instant */
 const GIVE_UP = 75000;      /* ms without all the shots (turning the head takes longer than staring ahead) */
-const SAME_FACE = 0.7;      /* a turned head may be this far from the mean of the frontal shots; further = a different person */
-const SAME_FACE_FRONT = THRESHOLD;   /* a frontal shot must be as close as a live match would need */
+const SAME_FACE = 1.15;     /* a turned head may be this far from the mean of the frontal shots (cos 0.34); further = a different person */
+const SAME_FACE_FRONT = THRESHOLD;   /* a frontal shot must be as close as a live match would need (cos 0.395) */
 
 /* what to do for each shot. "left" and "right" are the person's OWN left and right (the preview is mirrored like a mirror, so
    the face moves the same way on screen). Each shot is taken only when the measured head pose matches (see pose.js). */
@@ -89,7 +89,7 @@ export function openEnroll(member, onDone) {
           if (shots.length < SHOTS) { await wait(PAUSE); hint.textContent = ask(shots.length); }
         }
         if (closed) return false;
-        await api.put('/api/members/' + enc(member.id) + '/face', { consent: true, descriptors: shots });
+        await api.put('/api/members/' + enc(member.id) + '/face', { consent: true, model: MODEL, descriptors: shots });
         toast('Face saved');
         refreshFaces();   /* the camera in the background knows the new face at once */
         if (onDone) onDone();

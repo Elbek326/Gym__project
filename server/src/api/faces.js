@@ -13,8 +13,9 @@ export const facesRouter = Router();
 /* staff only, set per route: this router is mounted at /api, so a router-wide guard would also block other /api paths */
 
 const SIZE = 128, MAX_SHOTS = 8;
+const MODEL = 'sface';    /* the only face engine whose descriptors are matched (OpenCV SFace, unit length); older records are 'faceapi' */
 const MAX_TOTAL = 20;     /* enrolment shots + learned ones per member */
-const DUPLICATE = 0.15;   /* a learned descriptor closer than this to a stored one adds nothing */
+const DUPLICATE = 0.45;   /* a learned descriptor closer than this to a stored one (euclidean on unit vectors, cos 0.9) adds nothing */
 
 function checkOne(v) {
   if (!Array.isArray(v) || v.length !== SIZE || !v.every((x) => typeof x === 'number' && Number.isFinite(x) && Math.abs(x) <= 2)) {
@@ -35,29 +36,30 @@ async function member(id) {
   return r.rows[0];
 }
 
-/* all enrolled members, for matching at the reception screen */
+/* all members enrolled with the current engine, for matching at the reception screen (old-engine records are never compared) */
 facesRouter.get('/faces', requireStaff, async (req, res) => {
   const r = await query(`SELECT c.id, c.name, c.image, f.descriptors || f.learned AS descriptors
-                           FROM faces f JOIN clients c ON c.id = f.client ORDER BY c.name`);
+                           FROM faces f JOIN clients c ON c.id = f.client WHERE f.model = $1 ORDER BY c.name`, [MODEL]);
   res.json(r.rows);
 });
 
 facesRouter.get('/members/:id/face', requireStaff, async (req, res) => {
   await member(req.params.id);
-  const r = await query('SELECT jsonb_array_length(descriptors) AS shots, jsonb_array_length(learned) AS learned, consent_at FROM faces WHERE client = $1', [req.params.id]);
-  res.json(r.rowCount ? { enrolled: true, shots: r.rows[0].shots, learned: r.rows[0].learned, consent_at: r.rows[0].consent_at } : { enrolled: false });
+  const r = await query('SELECT jsonb_array_length(descriptors) AS shots, jsonb_array_length(learned) AS learned, consent_at, model FROM faces WHERE client = $1', [req.params.id]);
+  res.json(r.rowCount ? { enrolled: true, shots: r.rows[0].shots, learned: r.rows[0].learned, consent_at: r.rows[0].consent_at, model: r.rows[0].model } : { enrolled: false });
 });
 
-/* enrol or replace: { descriptors: [[128]...], consent: true } */
+/* enrol or replace: { descriptors: [[128]...], consent: true, model: 'sface' } */
 facesRouter.put('/members/:id/face', requireStaff, async (req, res) => {
   const b = req.body || {};
   if (b.consent !== true) throw new HttpError(400, 'The member must agree to face check-in first.');
+  if (b.model !== MODEL) throw new HttpError(400, 'The face data comes from an old version. Reload the page and try again.');
   const c = await member(req.params.id);
   const d = checkDescriptors(b.descriptors);
-  await query(`INSERT INTO faces (client, descriptors, learned, consent_at, created_by) VALUES ($1, $2, '[]', $3, $4)
+  await query(`INSERT INTO faces (client, descriptors, learned, consent_at, created_by, model) VALUES ($1, $2, '[]', $3, $4, $5)
                ON CONFLICT (client) DO UPDATE SET descriptors = EXCLUDED.descriptors, learned = '[]', consent_at = EXCLUDED.consent_at,
-                 created_by = EXCLUDED.created_by, updated_at = now()`,
-    [c.id, JSON.stringify(d), GYM.now().iso, req.user.username]);
+                 created_by = EXCLUDED.created_by, model = EXCLUDED.model, updated_at = now()`,
+    [c.id, JSON.stringify(d), GYM.now().iso, req.user.username, MODEL]);
   await audit('FACE_ENROLLED', c.name, req.user.id);
   res.json({ ok: true, shots: d.length });
 });
@@ -65,13 +67,14 @@ facesRouter.put('/members/:id/face', requireStaff, async (req, res) => {
 /* self-learning: a confident live check-in adds its (smoothed) descriptor as one more view of the member.
    { descriptor: [128] }. Enrolment shots are never touched; learned ones fill the room left under MAX_TOTAL and,
    when it is full, the oldest learned one is replaced. Near-duplicates are skipped. Needs an existing face record
-   (which only exists with consent). */
+   (which only exists with consent) made by the current engine: a record from the old engine answers 409 until the member is enrolled again. */
 facesRouter.post('/members/:id/face/learn', requireStaff, async (req, res) => {
   const d = checkOne((req.body || {}).descriptor);
   const c = await member(req.params.id);
   const out = await tx(async (db) => {
-    const r = await db.query('SELECT descriptors, learned FROM faces WHERE client = $1 FOR UPDATE', [c.id]);
+    const r = await db.query('SELECT descriptors, learned, model FROM faces WHERE client = $1 FOR UPDATE', [c.id]);
     if (!r.rowCount) throw new HttpError(404, 'This member has no face enrolled.');
+    if (r.rows[0].model !== MODEL) throw new HttpError(409, 'This face was saved with an old version. Enrol the face again.');
     const orig = r.rows[0].descriptors, learned = r.rows[0].learned;
     if (orig.concat(learned).some((x) => distance(x, d) < DUPLICATE)) return { added: false, reason: 'duplicate', learned };
     const room = Math.max(0, MAX_TOTAL - orig.length);

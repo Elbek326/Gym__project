@@ -14,13 +14,13 @@ import { CONSISTENT, MARGIN, createStabilizer, distance, matchFace, prepareMembe
    While a STAFF user is signed in on this device and PREFS.faceCam is on, a small floating preview runs the camera on every
    page. One enrolled face that wins 2 of the last 3 frames is checked in with the normal POST /api/members/:id/checkin
    (every server rule still applies) and the result is a toast. Off (toggle, sign-out, a member signing in) = tracks stopped.
-   The face library is a dynamic import inside engine.js, so nothing is downloaded until the camera is turned on. */
+   The OpenCV library is a dynamic import inside engine.js, so nothing is downloaded until the camera is turned on. */
 const INTERVAL = 300;       /* ms between detections */
 const COOLDOWN = 60000;     /* the same member is not sent again for this long */
 const RELOAD_MS = 60000;    /* the enrolled faces are fetched again this often while the camera runs */
 const NO_FACE_MS = 1000;    /* no face for longer than this empties the averaging buffer */
 const AVG_FRAMES = 3;       /* descriptors of this many recent single-face frames are averaged */
-const LEARN_DIST = 0.45;    /* a check-in this sure of the member teaches the server the new view (see learn below) */
+const LEARN_DIST = 1.0;     /* a check-in this sure of the member (cos 0.5, euclidean on unit vectors) teaches the server the new view (see learn below) */
 const MIN_FACE = 0.08;      /* faces narrower than this share of the frame width are background people and are ignored */
 
 var S = { token: 0, starting: false, stream: null, timer: null, reloadTimer: null, faces: [], ready: false, folded: false, cool: new Map(), stab: createStabilizer(), buf: [], lastFace: 0, status: '', diag: '', camError: null, note: '', audio: null, built: false };

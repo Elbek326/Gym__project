@@ -52,6 +52,10 @@ import I18N from './i18n.js';
     "Look at the camera": "Kameraga qarang", "No face found. Look at the camera": "Yuz topilmadi. Kameraga qarang", "One person at a time.": "Bir vaqtda bitta odam.",
     "Come a little closer": "Biroz yaqinroq keling", "The face changed. Keep the same person in front of the camera": "Yuz almashdi. Kamera oldida bir xil odam turishi kerak",
     "Face saved": "Yuz saqlandi", "Face data deleted": "Yuz ma'lumoti o'chirildi",
+    "Face needs to be enrolled again": "Yuzni qayta ro'yxatga olish kerak", "Enrol again": "Qayta ro'yxatga olish",
+    "This face was saved with an older version of Face ID, so the camera cannot recognise it. Enrol it again to turn face check-in back on.": "Bu yuz Yuz ID ning eski versiyasida saqlangan, shuning uchun kamera uni taniy olmaydi. Yuz bilan kirishni qayta yoqish uchun uni qayta ro'yxatga oling.",
+    "This face was saved with an old version. Enrol the face again.": "Bu yuz eski versiyada saqlangan. Yuzni qayta ro'yxatga oling.",
+    "The face data comes from an old version. Reload the page and try again.": "Yuz ma'lumoti eski versiyadan. Sahifani yangilab, qayta urinib ko'ring.",
     "Take 1 to 8 face shots.": "1 tadan 8 tagacha yuz kadrini oling.", "This member has no face enrolled.": "Bu a'zoning yuzi ro'yxatga olinmagan.", "The face data is not valid. Try again.": "Yuz ma'lumoti yaroqsiz. Qayta urinib ko'ring.",
     "The member must agree to face check-in first.": "Avval a'zo yuz bilan kirishga rozi bo'lishi kerak.",
 

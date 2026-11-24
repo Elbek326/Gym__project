@@ -28,5 +28,5 @@ Thumbs.db
 backups/
 gym_*.json
 
-# face-api model binaries: copied from node_modules by client/scripts/copy-models.mjs
+# OpenCV Zoo face models (YuNet, SFace): downloaded by client/scripts/fetch-models.mjs
 client/public/models/

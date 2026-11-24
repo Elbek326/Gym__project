@@ -1,9 +1,11 @@
 /* ===== face matching: pure functions, no DOM and no library =====
-   A descriptor is an array of 128 numbers. A member has 1 to 8 enrolment shots plus learned ones (see POST /members/:id/face/learn).
+   A descriptor is the SFace feature: 128 numbers scaled to unit length. The metric is euclidean on unit vectors, so
+   d = sqrt(2 - 2 * cos) for the cosine similarity cos (cos 1 -> d 0, cos 0.5 -> d 1, cos 0 -> d 1.41). OpenCV's own SFace
+   cosine threshold is 0.363, which is d = 1.13. A member has 1 to 8 enrolment shots plus learned ones (see POST /members/:id/face/learn).
    The reception screen compares a live descriptor with every enrolled member and accepts a match only when it is
    both close (THRESHOLD) and clearly better than the runner-up (MARGIN), and only after it won 2 of the last 3 frames. */
-export const THRESHOLD = 0.6;     /* euclidean distance below which a face counts as the same person (face-api's own default; MARGIN guards against look-alikes) */
-export const MARGIN = 0.08;       /* the second-best member must be at least this much further away than the best */
+export const THRESHOLD = 1.10;    /* distance below which a face counts as the same person: cos 0.395, a little stricter than OpenCV's 0.363 (d 1.13); MARGIN guards against look-alikes */
+export const MARGIN = 0.10;       /* the second-best member must be at least this much further away than the best */
 export const STABLE_NEED = 2;     /* the same member must win this many of the last STABLE_WINDOW frames ... */
 export const STABLE_WINDOW = 3;   /* ... counted over this many frames that had a face */
 
@@ -13,7 +15,7 @@ export function distance(a, b) {
   return Math.sqrt(s);
 }
 
-export const CONSISTENT = 0.45;   /* consecutive frames closer than this to the newest one are the same face and are averaged */
+export const CONSISTENT = 0.70;   /* consecutive frames closer than this to the newest one (cos 0.755) are the same face and are averaged; another person is at cos 0.4 or less */
 
 /* element-wise mean of several descriptors (null for an empty list) */
 export function mean(list) {
@@ -23,7 +25,7 @@ export function mean(list) {
   for (var i = 0; i < n; i++) out[i] /= list.length;
   return out;
 }
-/* scale to unit length, like face-api's own descriptors (a zero vector is returned as it is) */
+/* scale to unit length, like every stored descriptor (a zero vector is returned as it is) */
 export function normalise(d) {
   var s = 0; for (var i = 0; i < d.length; i++) s += d[i] * d[i];
   s = Math.sqrt(s);

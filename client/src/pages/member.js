@@ -81,10 +81,12 @@ function memberView(P, ro) {
   /* Face ID (staff only): enrolled or not, with the buttons; only measurements are stored, never a photo */
   var fc = P.face, faceCard = '';
   if (!ro && fc) {
-    var fb = '<button class="btn btn-sm btn-primary" data-act="faceEnroll" data-id="' + esc(c.id) + '">' + ic('camera') + (fc.enrolled ? 'Re-enrol' : 'Enrol face') + '</button>' +
+    var stale = fc.enrolled && fc.model !== 'sface';   /* saved by the old face engine: it is never matched, so the face must be enrolled again */
+    var fb = '<button class="btn btn-sm btn-primary" data-act="faceEnroll" data-id="' + esc(c.id) + '">' + ic('camera') + (stale ? 'Enrol again' : fc.enrolled ? 'Re-enrol' : 'Enrol face') + '</button>' +
       (fc.enrolled ? '<button class="btn btn-sm btn-danger" data-act="faceDelete" data-id="' + esc(c.id) + '">' + ic('trash') + 'Delete face data</button>' : '');
-    faceCard = '<section class="card"><header><h3>Face ID</h3><span class="chip ' + (fc.enrolled ? 'ok' : 'plain') + '">' + (fc.enrolled ? 'Enrolled' : 'Not enrolled') + '</span></header><div class="body" style="display:flex;flex-direction:column;gap:12px">' +
-      (fc.enrolled ? '<dl class="kv small"><dt>Shots</dt><dd>' + fc.shots + '</dd><dt>Agreed on</dt><dd>' + (fc.consent_at ? G.fmtDate(String(fc.consent_at).slice(0, 10)) : '—') + '</dd></dl>'
+    faceCard = '<section class="card"><header><h3>Face ID</h3><span class="chip ' + (stale ? 'warn' : fc.enrolled ? 'ok' : 'plain') + '">' + (stale ? 'Face needs to be enrolled again' : fc.enrolled ? 'Enrolled' : 'Not enrolled') + '</span></header><div class="body" style="display:flex;flex-direction:column;gap:12px">' +
+      (stale ? '<div class="small muted">This face was saved with an older version of Face ID, so the camera cannot recognise it. Enrol it again to turn face check-in back on.</div>' :
+        fc.enrolled ? '<dl class="kv small"><dt>Shots</dt><dd>' + fc.shots + '</dd><dt>Agreed on</dt><dd>' + (fc.consent_at ? G.fmtDate(String(fc.consent_at).slice(0, 10)) : '—') + '</dd></dl>'
         : '<div class="small muted">The member can check in by face once enrolled.</div>') +
       '<div class="row-actions">' + fb + '</div></div></section>';
   }
