@@ -21,7 +21,11 @@ export function createApp() {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', config.trustProxy);   /* behind the host's proxy, req.ip is the real client IP (see config.js) */
-  app.use(helmet());
+  /* helmet's default CSP, with two additions that Face ID needs (OpenCV, opencv.js):
+     'wasm-unsafe-eval' lets the browser compile its WebAssembly, and 'unsafe-eval' lets its Emscripten bindings build
+     functions with new Function(). Inline and foreign scripts stay blocked ('self' only, script-src-attr 'none').
+     A stricter alternative is to run OpenCV in a Web Worker served with its own policy. */
+  app.use(helmet({ contentSecurityPolicy: { directives: { scriptSrc: ["'self'", "'wasm-unsafe-eval'", "'unsafe-eval'"] } } }));
   app.use('/api', jsonOnlyWrites);
   /* request bodies: 1 MB is plenty (a member photo is ~40 KB); only a backup restore may be large */
   const small = express.json({ limit: '1mb' }), large = express.json({ limit: '50mb' });
