@@ -55,13 +55,14 @@ export function createApp() {
   app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 
   /* the built web app (client/dist): same origin as the API, so the session cookie just works.
-     Hashed asset files are cached for a year; index.html never, so a new deploy shows at once. */
+     Hashed asset files are cached for a year; index.html is never stored (no-store, not just no-cache), so a new deploy,
+     and with it a changed Content-Security-Policy header, reaches the browser at once instead of a cached copy's old one. */
   const dist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../client/dist');
   if (existsSync(path.join(dist, 'index.html'))) {
     app.use('/assets', express.static(path.join(dist, 'assets'), { immutable: true, maxAge: '1y' }));
     app.use(express.static(dist, { index: false, maxAge: 0 }));
     app.get(/^(?!\/api\/).*/, (req, res) => {
-      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Cache-Control', 'no-store');
       res.sendFile(path.join(dist, 'index.html'));
     });
   }

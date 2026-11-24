@@ -7,7 +7,7 @@ import { $, esc } from '../ui/html.js';
 import { ic } from '../ui/icons.js';
 import { toast } from '../ui/toast.js';
 import { startCamera, stopCamera } from './camera.js';
-import { detectFaces, loadEngine } from './engine.js';
+import { detectFaces, loadEngine, loadFailReason } from './engine.js';
 import { CONSISTENT, MARGIN, createStabilizer, distance, matchFace, prepareMembers, smooth } from './match.js';
 
 /* ===== the background camera =====
@@ -74,7 +74,7 @@ export async function refreshFaces() {
 
 async function start() {
   var my = ++S.token, video = $('#fcam-video');
-  S.starting = true; S.camError = null; S.ready = false; S.stab.reset(); S.buf = []; S.status = ''; S.diag = '';
+  S.starting = true; S.camError = null; S.camWhy = ''; S.ready = false; S.stab.reset(); S.buf = []; S.status = ''; S.diag = '';
   note('Starting the camera');
   var faces = refreshFaces();
   var engine = loadEngine(); engine.catch(function () { /* reported below */ });   /* the models load while the permission is asked */
@@ -85,7 +85,11 @@ async function start() {
   S.stream = stream; S.starting = false;
   note('Loading face models');
   try { await engine; }
-  catch (e) { if (my === S.token) { S.camError = 'Could not load the face models. Check the connection and try again.'; note(''); } return; }
+  catch (e) {
+    console.error('Face models failed to load', e);
+    if (my === S.token) { S.camError = 'Could not load the face models. Check the connection and try again.'; S.camWhy = loadFailReason(e); note(''); }
+    return;
+  }
   await faces;
   if (my !== S.token) return;
   S.ready = true; note('');
@@ -169,7 +173,7 @@ function drawWidget() {
   var el = $('#fcam'); if (!el) return;
   el.hidden = !wanted(); el.classList.toggle('folded', S.folded);
   var over = $('#fcam-over');
-  if (S.camError) { over.innerHTML = '<p>' + esc(S.camError) + '</p><button type="button" class="btn btn-sm btn-primary" data-act="camRetry">Try again</button>'; over.hidden = false; }
+  if (S.camError) { over.innerHTML = '<p>' + esc(S.camError) + '</p>' + (S.camWhy ? '<p class="fcam-why">' + esc(S.camWhy) + '</p>' : '') + '<button type="button" class="btn btn-sm btn-primary" data-act="camRetry">Try again</button>'; over.hidden = false; }
   else if (S.note) { over.innerHTML = '<p>' + esc(S.note) + '</p>'; over.hidden = false; }
   else { over.hidden = true; over.innerHTML = ''; }
   var dot = $('#fcam-dot'), lbl = S.folded ? 'Show camera' : 'Hide camera';

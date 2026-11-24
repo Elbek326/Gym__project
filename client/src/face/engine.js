@@ -25,10 +25,31 @@ async function ready(lib) {
   if (!c.Mat) await new Promise(function (r) { c.onRuntimeInitialized = r; });
   return c;
 }
+/* a dropped connection is retried twice (the SFace model is 37 MB, a flaky line can cut it); a missing file is not */
 async function putModel(lib, url, name) {
-  var res = await fetch(url);
-  if (!res.ok) throw new Error('Model ' + name + ' not found (' + res.status + ')');
-  lib.FS_createDataFile('/', name, new Uint8Array(await res.arrayBuffer()), true, false, false);
+  var buf, last;
+  for (var i = 1; i <= 3 && !buf; i++) {
+    try {
+      var res = await fetch(url);
+      if (!res.ok) throw Object.assign(new Error('Model ' + name + ' not found (' + res.status + ')'), { final: true });
+      buf = new Uint8Array(await res.arrayBuffer());
+    } catch (e) {
+      last = e;
+      if (e.final || i === 3) throw e;
+      await new Promise(function (r) { setTimeout(r, 1000 * i); });
+    }
+  }
+  if (!buf) throw last;
+  lib.FS_createDataFile('/', name, buf, true, false, false);
+}
+
+/* a short, plain reason for a failed loadEngine(), shown under the error message (the full error goes to the console) */
+export function loadFailReason(e) {
+  var m = String((e && (e.message || e)) || '');
+  if ((e && e.name === 'EvalError') || /Content Security Policy|unsafe-eval/i.test(m)) return 'Blocked by the site security policy (CSP). Reload the page with Ctrl+F5.';
+  if (/^Model .* not found/.test(m)) return m;
+  if (e && e.name === 'TypeError' && /fetch|network|load failed/i.test(m)) return 'Network error while downloading the face models.';
+  return m.slice(0, 160);
 }
 function dropFile(lib, name) { try { lib.FS_unlink('/' + name); } catch (e) { /* only frees memory; the net keeps its own copy */ } }
 

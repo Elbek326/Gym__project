@@ -314,6 +314,7 @@ a { color: inherit; }
 .fcam-stage video { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1); }
 .fcam-over { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px; text-align: center; font-size: 12px; background: color-mix(in srgb, var(--surface) 90%, transparent); color: var(--ink-2); }
 .fcam-over[hidden] { display: none; }
+.fcam-over .fcam-why { font-size: 11px; color: var(--ink-3); margin: 0; }
 .fcam-over p { margin: 0; }
 .fcam-foot { display: flex; align-items: center; gap: 6px; padding: 4px 6px 0 8px; min-height: 30px; }
 .fcam-status { flex: 1; min-width: 0; font-size: 12px; font-weight: 600; color: var(--ink-2); }

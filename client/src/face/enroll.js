@@ -4,7 +4,7 @@ import { openModal } from '../ui/modal.js';
 import { toast } from '../ui/toast.js';
 import { $ } from '../ui/html.js';
 import { startCamera, stopCamera } from './camera.js';
-import { MODEL, detectFaces, loadEngine } from './engine.js';
+import { MODEL, detectFaces, loadEngine, loadFailReason } from './engine.js';
 import { distance, mean, normalise, THRESHOLD } from './match.js';
 import { poseMatches } from './pose.js';
 import { refreshFaces } from './watcher.js';
@@ -52,7 +52,7 @@ export function openEnroll(member, onDone) {
         stream = s; hint.textContent = 'Loading face models';
       }, function (e) { camErr = e; over.textContent = e.message; over.hidden = false; hint.textContent = ''; });
       loadEngine().then(function () { if (!camErr && !closed) hint.textContent = 'Tick the box, then press Start and look at the camera.'; },
-        function (e) { engineErr = e; if (!closed) hint.textContent = 'Could not load the face models. Check the connection and try again.'; });
+        function (e) { console.error('Face models failed to load:', loadFailReason(e), e); engineErr = e; if (!closed) hint.textContent = 'Could not load the face models. Check the connection and try again.'; });
     },
     onClose: function () { closed = true; stopCamera(stream, video); },
     onSubmit: async function (fd, form) {
